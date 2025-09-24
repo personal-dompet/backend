@@ -1,0 +1,17 @@
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { pinoLogger } from '../src/utils/helpers/logger';
+
+const connectionString = process.env.DATABASE_URL!;
+const client = postgres(connectionString, { prepare: false });
+
+export const db = drizzle(client, {
+  logger: {
+    logQuery(query, params) {
+      if (query.toLowerCase().includes('create table')) return;
+      if (query.toLowerCase().includes('create index')) return;
+      if (query.toLowerCase().includes('create unique index')) return;
+      pinoLogger.info({ sql: query, params }, 'Executing SQL Query');
+    },
+  },
+});
