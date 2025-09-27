@@ -1,4 +1,3 @@
-import { db } from 'db';
 import { walletPockets } from 'db/schemas/wallet-pockets';
 import { WalletSelect, WalletUpdate } from './wallet.schema';
 import { pockets } from 'db/schemas/pockets';
@@ -8,10 +7,22 @@ import { walletColumns } from './wallet.column';
 import { pocketColumns } from '../pockets/pocket.column';
 import { PocketSelect } from '../pockets/pocket.schema';
 import { POCKET_TYPE } from '@/core/constants/pocket-type';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { Drizzle } from 'db';
 
-export abstract class WalletService {
-  static async create(user: User): Promise<[WalletSelect, PocketSelect]> {
-    const [wallet, pocket] = await db.transaction(async (tx) => {
+export class WalletService {
+  private drizzle: Drizzle;
+
+  constructor(drizzle: Drizzle) {
+    this.drizzle = drizzle;
+  }
+
+  private get db(): PostgresJsDatabase {
+    return this.drizzle.db;
+  }
+
+  async create(user: User): Promise<[WalletSelect, PocketSelect]> {
+    const [wallet, pocket] = await this.db.transaction(async (tx) => {
       const [pocket] = await tx
         .insert(pockets)
         .values({
@@ -35,8 +46,8 @@ export abstract class WalletService {
     return [wallet, pocket]
   }
 
-  static async get(user: User): Promise<WalletSelect & PocketSelect> {
-    const [wallet] = await db
+  async get(user: User): Promise<WalletSelect & PocketSelect> {
+    const [wallet] = await this.db
       .select({
         ...walletColumns,
         ...pocketColumns,
@@ -49,9 +60,9 @@ export abstract class WalletService {
     return wallet;
   }
 
-  static async update(pocket: PocketSelect, updates: WalletUpdate): Promise<WalletSelect> {
+  async update(pocket: PocketSelect, updates: WalletUpdate): Promise<WalletSelect> {
     try {
-      const [wallet] = await db
+      const [wallet] = await this.db
         .update(walletPockets)
         .set(updates)
         .where(eq(walletPockets.pocketId, pocket.id))

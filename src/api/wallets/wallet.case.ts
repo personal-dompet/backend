@@ -7,10 +7,12 @@ import { TransactionService } from '../transactions/transaction.service';
 import dayjs from 'dayjs';
 import { TRANSACTION_TYPE } from '@/core/constants/transaction-type';
 import { TRANSACTION_CATEGORY } from '@/core/constants/transaction-category';
+import { Drizzle } from 'db';
 
 export abstract class GetDetailWalletCase {
   static async execute(user: User): Promise<Wallet> {
-    const wallet = await WalletService.get(user);
+    const walletService = new WalletService(Drizzle.getInstance());
+    const wallet = await walletService.get(user);
 
     if (wallet) return new Wallet(wallet);
 
@@ -22,7 +24,8 @@ export abstract class GetDetailWalletCase {
 
 export abstract class InitWalletCase {
   static async execute(user: User): Promise<Wallet> {
-    const [wallet, pocket] = await WalletService.create(user);
+    const walletService = new WalletService(Drizzle.getInstance());
+    const [wallet, pocket] = await walletService.create(user);
     return new Wallet({
       ...pocket,
       ...wallet,
@@ -32,9 +35,11 @@ export abstract class InitWalletCase {
 
 export abstract class TopUpWalletCase {
   static async execute(user: User, request: TopUpWallet): Promise<Wallet> {
-    const currentWallet = await WalletService.get(user);
+    const walletService = new WalletService(Drizzle.getInstance());
+    const transactionService = new TransactionService(Drizzle.getInstance());
+    const currentWallet = await walletService.get(user);
     const { amount, description, accountId } = request;
-    const wallet = await TransactionService.topUp({
+    const wallet = await transactionService.topUp({
       amount,
       date: dayjs().unix(),
       description,

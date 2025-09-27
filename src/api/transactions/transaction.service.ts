@@ -1,6 +1,5 @@
 import { transactions } from 'db/schemas/transactions';
 import { TransactionInsert, TransactionSelect, TransactionFilter } from './transaction.schema';
-import { db } from 'db';
 import { and, asc, desc, ilike, gte, lte, eq, isNull } from 'drizzle-orm';
 import { User } from '@/core/entities/user-entity';
 import { WalletSelect } from '../wallets/wallet.schema';
@@ -11,18 +10,30 @@ import { pockets } from 'db/schemas/pockets';
 import { pocketColumns } from '../pockets/pocket.column';
 import { accountColumns } from '../accounts/account.column';
 import { accounts } from 'db/schemas/accounts';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { Drizzle } from 'db';
 
-export abstract class TransactionService {
-  static async create(payload: TransactionInsert): Promise<TransactionSelect> {
-    const [transaction] = await db
+export class TransactionService {
+  private drizzle: Drizzle;
+
+  constructor(drizzle: Drizzle) {
+    this.drizzle = drizzle;
+  }
+
+  private get db(): PostgresJsDatabase {
+    return this.drizzle.db;
+  }
+
+  async create(payload: TransactionInsert): Promise<TransactionSelect> {
+    const [transaction] = await this.db
       .insert(transactions)
       .values(payload)
       .returning();
     return transaction;
   }
 
-  static async topUp(payload: TransactionInsert): Promise<WalletSelect & PocketSelect> {
-    const result = await db.transaction(async (tx) => {
+  async topUp(payload: TransactionInsert): Promise<WalletSelect & PocketSelect> {
+    const result = await this.db.transaction(async (tx) => {
       const [transaction] = await tx.insert(transactions)
         .values(payload)
         .returning();
@@ -75,7 +86,7 @@ export abstract class TransactionService {
     return result;
   }
 
-  static async list(user: User, filter: TransactionFilter): Promise<TransactionSelect[]> {
+  async list(user: User, filter: TransactionFilter): Promise<TransactionSelect[]> {
     const {
       page,
       limit = 20,
@@ -114,7 +125,7 @@ export abstract class TransactionService {
       sortBy === 'amount' ? transactions.amount :
         transactions.createdAt;
 
-    const result = await db
+    const result = await this.db
       .select()
       .from(transactions)
       .where(and(...conditions))

@@ -1,6 +1,5 @@
 import { User } from '@/core/entities/user-entity';
 import { AllPocket, CreatePocketRequest, PocketFilter, PocketInsert, PocketSelect } from './pocket.schema';
-import { db } from 'db';
 import { pockets } from 'db/schemas/pockets';
 import { and, desc, eq, ilike, not } from 'drizzle-orm';
 import { savingPockets } from 'db/schemas/saving-pockets';
@@ -8,10 +7,22 @@ import { recurringPockets } from 'db/schemas/recurring-pockets';
 import { spendingPockets } from 'db/schemas/spending-pockets';
 import { POCKET_TYPE } from '@/core/constants/pocket-type';
 import { Wallet } from '../wallets/wallet.dto';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { Drizzle } from 'db';
 
-export abstract class PocketService {
-  static async createUnique(user: User, payload: PocketInsert): Promise<PocketSelect> {
-    const [pocket] = await db
+export class PocketService {
+  private drizzle: Drizzle;
+
+  constructor(drizzle: Drizzle) {
+    this.drizzle = drizzle;
+  }
+
+  private get db(): PostgresJsDatabase {
+    return this.drizzle.db;
+  }
+
+  async createUnique(user: User, payload: PocketInsert): Promise<PocketSelect> {
+    const [pocket] = await this.db
       .insert(pockets)
       .values({ ...payload, userId: user.uid })
       .onConflictDoUpdate({ target: pockets.userId, set: { userId: user.uid } })
@@ -20,13 +31,8 @@ export abstract class PocketService {
     return pocket;
   }
 
-  static async create(user: User, payload: CreatePocketRequest, wallet: Wallet): Promise<PocketSelect> {
-    // const [pocket] = await db
-    //   .insert(pockets)
-    //   .values({ ...payload, userId: user.uid })
-    //   .returning();
-
-    const pocket = await db.transaction(async (tx) => {
+  async create(user: User, payload: CreatePocketRequest, wallet: Wallet): Promise<PocketSelect> {
+    const pocket = await this.db.transaction(async (tx) => {
       const [pocket] = await tx
         .insert(pockets)
         .values({ ...payload, userId: user.uid })
@@ -57,8 +63,8 @@ export abstract class PocketService {
     return pocket;
   }
 
-  static async get(user: User): Promise<PocketSelect> {
-    const [pocket] = await db
+  async get(user: User): Promise<PocketSelect> {
+    const [pocket] = await this.db
       .select()
       .from(pockets)
       .where(eq(pockets.userId, user.uid))
@@ -67,7 +73,7 @@ export abstract class PocketService {
     return pocket;
   }
 
-  static async list(user: User, query?: PocketFilter): Promise<AllPocket[]> {
+  async list(user: User, query?: PocketFilter): Promise<AllPocket[]> {
     const queries = [
       eq(pockets.userId, user.uid),
     ]
@@ -82,7 +88,7 @@ export abstract class PocketService {
       queries.push(ilike(pockets.name, `%${query.keyword}%`));
     }
 
-    const allPockets = await db
+    const allPockets = await this.db
       .select()
       .from(pockets)
       .where(and(...queries))

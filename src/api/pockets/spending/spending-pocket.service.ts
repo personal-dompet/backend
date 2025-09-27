@@ -1,13 +1,24 @@
 import { User } from '@/core/entities/user-entity';
 import { SpendingPocketSelect } from './spending-pocket.schema';
 import { Pocket } from '../pocket.dto';
-import { db } from 'db';
 import { spendingPockets } from 'db/schemas/spending-pockets';
 import { Wallet } from '@/api/wallets/wallet.dto';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { Drizzle } from 'db';
 
-export abstract class SpendingPocketService {
-  static async create(user: User, pocket: Pocket, wallet: Wallet,): Promise<SpendingPocketSelect> {
-    const [spendingPocket] = await db
+export class SpendingPocketService {
+  private drizzle: Drizzle;
+
+  constructor(drizzle: Drizzle) {
+    this.drizzle = drizzle;
+  }
+
+  private get db(): PostgresJsDatabase {
+    return this.drizzle.db;
+  }
+
+  async create(user: User, pocket: Pocket, wallet: Wallet,): Promise<SpendingPocketSelect> {
+    const [spendingPocket] = await this.db
       .insert(spendingPockets)
       .values({
         walletId: wallet.id,

@@ -6,7 +6,6 @@ export const savingPockets = pgTable('saving_pockets', {
   pocketId: integer('pocket_id').references(() => pockets.id).primaryKey(),
   userId: varchar('user_id').notNull(),
   walletId: integer('wallet_id').references(() => walletPockets.pocketId).notNull(),
-  balance: integer('balance').notNull().default(0),
   targetAmount: integer('target_amount'),
   targetDescription: varchar('target_description'),
   targetDate: integer('target_date'),
