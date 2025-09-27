@@ -3,11 +3,11 @@ import { walletPockets } from 'db/schemas/wallet-pockets';
 import { WalletSelect, WalletUpdate } from './wallet.schema';
 import { pockets } from 'db/schemas/pockets';
 import { and, eq, isNull } from 'drizzle-orm';
-import { User } from '@/utils/entities/user-entity';
+import { User } from '@/core/entities/user-entity';
 import { walletColumns } from './wallet.column';
 import { pocketColumns } from '../pockets/pocket.column';
 import { PocketSelect } from '../pockets/pocket.schema';
-import { POCKET_TYPE } from '@/utils/constants/pocket-type';
+import { POCKET_TYPE } from '@/core/constants/pocket-type';
 
 export abstract class WalletService {
   static async create(user: User): Promise<[WalletSelect, PocketSelect]> {

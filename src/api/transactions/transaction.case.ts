@@ -1,4 +1,4 @@
-import { User } from '@/utils/entities/user-entity';
+import { User } from '@/core/entities/user-entity';
 import { TransactionService } from './transaction.service';
 
 export abstract class RecentTransactionCase {

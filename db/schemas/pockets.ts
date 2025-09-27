@@ -1,7 +1,7 @@
 // import { relations } from 'drizzle-orm';
 import { pgTable, varchar, integer } from 'drizzle-orm/pg-core';
 import { timestamps } from './timestamps.helper';
-import { POCKET_TYPE } from '@/utils/constants/pocket-type';
+import { POCKET_TYPE } from '@/core/constants/pocket-type';
 
 export const pockets = pgTable('pockets', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

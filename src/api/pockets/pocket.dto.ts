@@ -1,4 +1,4 @@
-import { POCKET_TYPE, PocketType } from '@/utils/constants/pocket-type';
+import { POCKET_TYPE, PocketType } from '@/core/constants/pocket-type';
 import { AllPocket } from './pocket.schema';
 
 export class Pocket {

@@ -1,7 +1,7 @@
 import { accounts } from 'db/schemas/accounts';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import z from 'zod';
-import { ACCOUNT_TYPE } from '@/utils/constants/account-type';
+import { ACCOUNT_TYPE } from '@/core/constants/account-type';
 
 const accountSelectSchema = createSelectSchema(accounts);
 export const accountInsertSchema = createInsertSchema(accounts).omit({

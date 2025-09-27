@@ -1,4 +1,4 @@
-import { honoApp } from '@/utils/lib/hono';
+import { honoApp } from '@/core/lib/hono';
 import { RecentTransactionCase } from './transaction.case';
 import { RecentTransaction } from './transaction.dto';
 

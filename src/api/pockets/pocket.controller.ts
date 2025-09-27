@@ -1,4 +1,4 @@
-import { honoApp } from '@/utils/lib/hono';
+import { honoApp } from '@/core/lib/hono';
 import { CreatePocketCase, ListPocketCase } from './pocket.case';
 import { zValidator } from '@hono/zod-validator';
 import { createPocketSchema, pocketFilterSchema } from './pocket.schema';

@@ -1,4 +1,4 @@
-import { honoApp } from '@/utils/lib/hono';
+import { honoApp } from '@/core/lib/hono';
 import { CreateAccountCase, ListAccountCase } from './account.case';
 import { zValidator } from '@hono/zod-validator';
 import { createAccountSchema, accountFilterSchema } from './account.schema';

@@ -1,4 +1,4 @@
-import { AccountType } from '@/utils/constants/account-type';
+import { AccountType } from '@/core/constants/account-type';
 import { AccountSelect } from './account.schema';
 
 export class Account {

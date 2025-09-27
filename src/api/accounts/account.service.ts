@@ -1,4 +1,4 @@
-import { User } from '@/utils/entities/user-entity';
+import { User } from '@/core/entities/user-entity';
 import { AccountFilter, AccountSelect, CreateAccountRequest } from './account.schema';
 import { db } from 'db';
 import { accounts } from 'db/schemas/accounts';

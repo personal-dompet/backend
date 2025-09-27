@@ -1,8 +1,16 @@
 import { transactions } from 'db/schemas/transactions';
 import { TransactionInsert, TransactionSelect, TransactionFilter } from './transaction.schema';
 import { db } from 'db';
-import { and, asc, desc, ilike, gte, lte, eq } from 'drizzle-orm';
-import { User } from '@/utils/entities/user-entity';
+import { and, asc, desc, ilike, gte, lte, eq, isNull } from 'drizzle-orm';
+import { User } from '@/core/entities/user-entity';
+import { WalletSelect } from '../wallets/wallet.schema';
+import { PocketSelect } from '../pockets/pocket.schema';
+import { walletPockets } from 'db/schemas/wallet-pockets';
+import { walletColumns } from '../wallets/wallet.column';
+import { pockets } from 'db/schemas/pockets';
+import { pocketColumns } from '../pockets/pocket.column';
+import { accountColumns } from '../accounts/account.column';
+import { accounts } from 'db/schemas/accounts';
 
 export abstract class TransactionService {
   static async create(payload: TransactionInsert): Promise<TransactionSelect> {
@@ -11,6 +19,60 @@ export abstract class TransactionService {
       .values(payload)
       .returning();
     return transaction;
+  }
+
+  static async topUp(payload: TransactionInsert): Promise<WalletSelect & PocketSelect> {
+    const result = await db.transaction(async (tx) => {
+      const [transaction] = await tx.insert(transactions)
+        .values(payload)
+        .returning();
+
+      const [wallet] = await tx.select({
+        ...walletColumns,
+        ...pocketColumns,
+      })
+        .from(walletPockets)
+        .innerJoin(pockets, eq(walletPockets.pocketId, pockets.id))
+        .where(and(eq(pockets.id, payload.pocketId), isNull(pockets.deletedAt)))
+        .limit(1);
+
+      if (!wallet) {
+        tx.rollback();
+        throw new Error('Pocket not found');
+      }
+
+      wallet.balance += transaction.amount;
+      wallet.availableBalance += transaction.amount;
+
+      await tx.update(walletPockets)
+        .set({
+          balance: wallet.balance,
+          availableBalance: wallet.availableBalance,
+        })
+        .where(eq(walletPockets.pocketId, payload.pocketId));
+
+      const [account] = await tx.select(accountColumns)
+        .from(accounts)
+        .where(eq(accounts.id, transaction.accountId))
+        .limit(1);
+
+      if (!account) {
+        tx.rollback();
+        throw new Error('Account not found');
+      }
+
+      account.balance += transaction.amount;
+
+      await tx.update(accounts)
+        .set({
+          balance: account.balance,
+        })
+        .where(eq(accounts.id, transaction.accountId));
+
+      return wallet;
+    })
+
+    return result;
   }
 
   static async list(user: User, filter: TransactionFilter): Promise<TransactionSelect[]> {

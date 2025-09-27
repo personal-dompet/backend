@@ -1,4 +1,4 @@
-import { User } from '@/utils/entities/user-entity';
+import { User } from '@/core/entities/user-entity';
 import { AllPocket, CreatePocketRequest, PocketFilter, PocketInsert, PocketSelect } from './pocket.schema';
 import { db } from 'db';
 import { pockets } from 'db/schemas/pockets';
@@ -6,7 +6,7 @@ import { and, desc, eq, ilike, not } from 'drizzle-orm';
 import { savingPockets } from 'db/schemas/saving-pockets';
 import { recurringPockets } from 'db/schemas/recurring-pockets';
 import { spendingPockets } from 'db/schemas/spending-pockets';
-import { POCKET_TYPE } from '@/utils/constants/pocket-type';
+import { POCKET_TYPE } from '@/core/constants/pocket-type';
 import { Wallet } from '../wallets/wallet.dto';
 
 export abstract class PocketService {

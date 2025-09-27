@@ -1,5 +1,5 @@
-import { TRANSACTION_CATEGORY } from '@/utils/constants/transaction-category';
-import { TRANSACTION_TYPE } from '@/utils/constants/transaction-type';
+import { TRANSACTION_CATEGORY } from '@/core/constants/transaction-category';
+import { TRANSACTION_TYPE } from '@/core/constants/transaction-type';
 import { transactions } from 'db/schemas/transactions';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import z from 'zod';

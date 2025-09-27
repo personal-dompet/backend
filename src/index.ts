@@ -1,12 +1,12 @@
 import { logger } from 'hono/logger'
 import { auth } from './firebase-admin';
-import { User } from './utils/entities/user-entity';
-import { honoApp } from './utils/lib/hono';
+import { User } from './core/entities/user-entity';
+import { honoApp } from './core/lib/hono';
 import { walletController } from './api/wallets/wallet.controller';
 import { transactionController } from './api/transactions/transaction.controller';
 import { pocketController } from './api/pockets/pocket.controller';
 import { showRoutes } from 'hono/dev';
-import { errorHandler } from './utils/helpers/error-handler';
+import { errorHandler } from './core/helpers/error-handler';
 import { accountController } from './api/accounts/account.controller';
 
 

@@ -1,4 +1,4 @@
-import { User } from '@/utils/entities/user-entity';
+import { User } from '@/core/entities/user-entity';
 import { SimplePocket } from './pocket.dto';
 import { PocketService } from './pocket.service';
 import { CreatePocketRequest, PocketFilter } from './pocket.schema';

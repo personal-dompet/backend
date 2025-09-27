@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { pinoLogger } from '../src/utils/helpers/logger';
+import { pinoLogger } from '../src/core/helpers/logger';
 
 const connectionString = process.env.DATABASE_URL!;
 const client = postgres(connectionString, { prepare: false });

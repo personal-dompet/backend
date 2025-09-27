@@ -4,7 +4,7 @@ import z from 'zod';
 import { SavingPocketSelect } from './saving/saving-pocket.schema';
 import { RecurringPocketSelect } from './recurring/recurring-pocket.schema';
 import { SpendingPocketSelect } from './spending/spending-pocket.schema';
-import { POCKET_TYPE } from '@/utils/constants/pocket-type';
+import { POCKET_TYPE } from '@/core/constants/pocket-type';
 
 const pocketSelectSchema = createSelectSchema(pockets)
 export const pocketInsertSchema = createInsertSchema(pockets).omit({

@@ -1,4 +1,4 @@
-import { User } from '@/utils/entities/user-entity';
+import { User } from '@/core/entities/user-entity';
 import { SimpleAccount } from './account.dto';
 import { AccountService } from './account.service';
 import { CreateAccountRequest, AccountFilter } from './account.schema';
