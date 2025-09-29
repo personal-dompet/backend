@@ -57,7 +57,7 @@ export class WalletService {
       .where(and(eq(pockets.userId, user.uid), isNull(pockets.deletedAt)))
       .limit(1);
 
-    return wallet;
+  return wallet;
   }
 
   async update(pocket: PocketSelect, updates: WalletUpdate): Promise<WalletSelect> {
