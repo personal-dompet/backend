@@ -1,5 +1,6 @@
 {
   "name": "backend",
+  "type": "module",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "db:push": "drizzle-kit push"
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@types/bun": "^1.2.21",
-    "drizzle-kit": "^0.31.4"
+    "drizzle-kit": "^0.31.4",
+    "typescript": "^5.9.3"
   }
 }
