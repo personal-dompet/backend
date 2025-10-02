@@ -8,6 +8,7 @@ import { pocketController } from './api/pockets/pocket.controller';
 import { showRoutes } from 'hono/dev';
 import { errorHandler } from './core/helpers/error-handler';
 import { accountController } from './api/accounts/account.controller';
+import { transferController } from './api/transfers/transfer.controller';
 
 
 const app = honoApp();
@@ -43,6 +44,7 @@ app.use('/api/*', async (c, next) => {
 app.route('/api/wallets', walletController);
 app.route('/api/transactions', transactionController);
 app.route('/api/pockets', pocketController);
+app.route('/api/transfers', transferController);
 app.route('/api/accounts', accountController);
 
 showRoutes(app, { colorize: true });

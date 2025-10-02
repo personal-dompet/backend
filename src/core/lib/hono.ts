@@ -1,10 +1,6 @@
 import { Hono } from 'hono'
-import { User } from '../entities/user-entity'
+import { Context } from '../types/context'
 
 export function honoApp() {
-  return new Hono<{
-    Variables: {
-      user: User
-    }
-  }>()
+  return new Hono<Context>()
 }
