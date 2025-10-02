@@ -1,34 +1,25 @@
 import { Pocket } from '../pockets/pocket.dto';
-import { PocketSelect } from '../pockets/pocket.schema';
-import { PocketTransferSelect, TransferSelect } from './transfer.schema';
+import { PocketTransferDetailSelect, TransferSelect } from './transfer.schema';
 
-export class PocketTransfer {
+export class Transfer {
   id: number;
-  userId: string;
-  sourcePocketId: number;
-  destinationPocketId: number;
-  sourcePocket: Pocket;
-  destinationPocket: Pocket;
   amount: number;
-  date: number;
-  description: string;
+  description?: string | null;
 
-  constructor(data: PocketTransferResponse) {
-    this.id = data.transfer.id;
-    this.userId = data.transfer.userId;
-    this.sourcePocketId = data.pocketTransfer.sourcePocketId;
-    this.destinationPocketId = data.pocketTransfer.destinationPocketId;
-    this.amount = data.transfer.amount;
-    this.date = data.transfer.date;
-    this.description = data.transfer.description;
-    this.sourcePocket = new Pocket(data.sourcePocket);
-    this.destinationPocket = new Pocket(data.destinationPocket);
+  constructor(data: TransferSelect) {
+    this.id = data.id;
+    this.amount = data.amount;
+    this.description = data.description;
   }
 }
 
-export type PocketTransferResponse = {
-  transfer: TransferSelect;
-  pocketTransfer: PocketTransferSelect;
-  sourcePocket: PocketSelect;
-  destinationPocket: PocketSelect;
+export class PocketTransfer extends Transfer {
+  sourcePocket: Pocket;
+  destinationPocket: Pocket;
+
+  constructor(data: PocketTransferDetailSelect) {
+    super(data);
+    this.sourcePocket = new Pocket(data.sourcePocket);
+    this.destinationPocket = new Pocket(data.destinationPocket);
+  }
 }

@@ -2,6 +2,7 @@ import { pocketTransfers } from 'db/schemas/pocket-transfers';
 import { transfers } from 'db/schemas/transfers';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import z from 'zod';
+import { PocketSelect } from '../pockets/pocket.schema';
 
 const transferInsertSchema = createInsertSchema(transfers);
 const pocketTransferInsertSchema = createInsertSchema(pocketTransfers);
@@ -43,3 +44,8 @@ export type PocketTransferRequest = z.infer<typeof pocketTransferRequestSchema>;
 export type PocketTransferFilter = z.infer<typeof pocketTransferFilterSchema>;
 export type TransferSelect = z.infer<typeof transferSelectSchema>;
 export type PocketTransferSelect = z.infer<typeof pocketTransferSelectSchema>;
+
+export type PocketTransferDetailSelect = TransferSelect & PocketTransferSelect & {
+  sourcePocket: PocketSelect;
+  destinationPocket: PocketSelect;
+}

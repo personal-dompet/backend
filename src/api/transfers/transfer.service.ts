@@ -1,11 +1,10 @@
 import { Drizzle } from 'db';
-import { PocketTransferRequest, PocketTransferFilter } from './transfer.schema';
+import { PocketTransferRequest, PocketTransferFilter, PocketTransferDetailSelect } from './transfer.schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { transfers } from 'db/schemas/transfers';
 import { pocketTransfers } from 'db/schemas/pocket-transfers';
 import { pockets } from 'db/schemas/pockets';
 import { and, eq, gte, lte, isNull, ilike, asc, desc } from 'drizzle-orm';
-import { PocketTransferResponse } from './transfer.dto';
 import { alias } from 'drizzle-orm/pg-core';
 import { User } from '@/core/entities/user-entity';
 
@@ -20,11 +19,11 @@ export class TransferService {
     return this.drizzle.db;
   }
 
-  async createPocketTransfer(request: PocketTransferRequest, user: User): Promise<PocketTransferResponse> {
+  async createPocketTransfer(request: PocketTransferRequest, user: User): Promise<PocketTransferDetailSelect> {
     const { amount, description, sourcePocketId, destinationPocketId } = request;
     const userId = user.uid;
 
-    const transfer: PocketTransferResponse = await this.db.transaction(async (tx) => {
+    const transfer: PocketTransferDetailSelect = await this.db.transaction(async (tx) => {
       const [sourcePocket] = await tx.select().from(pockets).where(and(eq(pockets.id, sourcePocketId), isNull(pockets.deletedAt))).limit(1);
       if (!sourcePocket) {
         throw new Error('Source pocket not found');
@@ -57,8 +56,8 @@ export class TransferService {
       }).where(eq(pockets.id, destinationPocket.id)).returning()
 
       return {
-        transfer,
-        pocketTransfer,
+        ...transfer,
+        ...pocketTransfer,
         sourcePocket: sourcePocketUpdate,
         destinationPocket: destinationPocketUpdate,
       };
@@ -67,7 +66,7 @@ export class TransferService {
     return transfer;
   }
 
-  async pocketTransfers(filter: PocketTransferFilter, user: User): Promise<PocketTransferResponse[]> {
+  async pocketTransfers(filter: PocketTransferFilter, user: User): Promise<PocketTransferDetailSelect[]> {
     const {
       page,
       limit = 20,
@@ -124,6 +123,11 @@ export class TransferService {
       .limit(limit)
       .offset(offset);
 
-    return result;
+    return result.map((item) => ({
+      ...item.transfer,
+      ...item.pocketTransfer,
+      sourcePocket: item.sourcePocket,
+      destinationPocket: item.destinationPocket,
+    }));
   }
 }
