@@ -3,6 +3,8 @@ import { TRANSACTION_TYPE } from '@/core/constants/transaction-type';
 import { transactions } from 'db/schemas/transactions';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import z from 'zod';
+import { PocketSelect } from '../pockets/pocket.schema';
+import { AccountSelect } from '../accounts/account.schema';
 
 const transactionInsertSchema = createInsertSchema(transactions)
 const transactionSelectSchema = createSelectSchema(transactions)
@@ -41,3 +43,8 @@ export const transactionFilterSchema = z.object({
 export type TransactionInsert = z.infer<typeof transactionInsertSchema>
 export type TransactionSelect = z.infer<typeof transactionSelectSchema>
 export type TransactionFilter = z.infer<typeof transactionFilterSchema>
+
+export type TransactionDetailSelect = TransactionSelect & {
+  pocket?: PocketSelect | null;
+  account?: AccountSelect | null;
+}

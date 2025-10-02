@@ -2,8 +2,7 @@ import { transactions } from 'db/schemas/transactions';
 import { TransactionInsert, TransactionSelect, TransactionFilter } from './transaction.schema';
 import { and, asc, desc, ilike, gte, lte, eq, isNull } from 'drizzle-orm';
 import { User } from '@/core/entities/user-entity';
-import { WalletSelect } from '../wallets/wallet.schema';
-import { PocketSelect } from '../pockets/pocket.schema';
+import { WalletPocket } from '../wallets/wallet.schema';
 import { walletPockets } from 'db/schemas/wallet-pockets';
 import { walletColumns } from '../wallets/wallet.column';
 import { pockets } from 'db/schemas/pockets';
@@ -32,7 +31,7 @@ export class TransactionService {
     return transaction;
   }
 
-  async topUp(payload: TransactionInsert): Promise<WalletSelect & PocketSelect> {
+  async topUp(payload: TransactionInsert): Promise<WalletPocket> {
     const result = await this.db.transaction(async (tx) => {
       const [transaction] = await tx.insert(transactions)
         .values(payload)
