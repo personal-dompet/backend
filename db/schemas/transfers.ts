@@ -5,7 +5,6 @@ export const transfers = pgTable('transfers', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   userId: varchar('user_id').notNull(),
   amount: integer('amount').notNull(),
-  description: varchar('description').notNull(),
-  date: integer('date').notNull(),
+  description: varchar('description'),
   ...timestamps,
 })
