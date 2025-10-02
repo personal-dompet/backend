@@ -1,23 +1,11 @@
-import { PocketType } from '@/core/constants/pocket-type';
+import { Pocket } from '../pockets/pocket.dto';
+import { WalletPocket } from './wallet.schema';
 
-export class Wallet {
-  id: number;
-  userId: string;
+export class Wallet extends Pocket {
   totalBalance: number;
-  balance: number;
-  name: string;
-  type: PocketType;
-  createdAt: number;
-  updatedAt: number | null;
 
-  constructor(data: Wallet) {
-    this.id = data.id;
-    this.userId = data.userId;
+  constructor(data: WalletPocket) {
+    super(data);
     this.totalBalance = data.totalBalance;
-    this.balance = data.balance;
-    this.name = data.name;
-    this.type = data.type;
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
   }
 }

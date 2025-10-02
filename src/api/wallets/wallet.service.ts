@@ -1,5 +1,5 @@
 import { walletPockets } from 'db/schemas/wallet-pockets';
-import { WalletSelect, WalletUpdate } from './wallet.schema';
+import { WalletPocket, WalletSelect, WalletUpdate } from './wallet.schema';
 import { pockets } from 'db/schemas/pockets';
 import { and, eq, isNull } from 'drizzle-orm';
 import { User } from '@/core/entities/user-entity';
@@ -46,7 +46,7 @@ export class WalletService {
     return [wallet, pocket]
   }
 
-  async get(user: User): Promise<WalletSelect & PocketSelect> {
+  async get(user: User): Promise<WalletPocket> {
     const [wallet] = await this.db
       .select({
         ...walletColumns,
@@ -57,7 +57,7 @@ export class WalletService {
       .where(and(eq(pockets.userId, user.uid), isNull(pockets.deletedAt)))
       .limit(1);
 
-  return wallet;
+    return wallet;
   }
 
   async update(pocket: PocketSelect, updates: WalletUpdate): Promise<WalletSelect> {

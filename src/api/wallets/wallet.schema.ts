@@ -2,6 +2,7 @@ import { AppDate } from '@/core/lib/app-date';
 import { walletPockets } from 'db/schemas/wallet-pockets';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import z from 'zod';
+import { PocketSelect } from '../pockets/pocket.schema';
 
 const walletSelectSchema = createSelectSchema(walletPockets)
 const walletUpdateSchema = createUpdateSchema(walletPockets)
@@ -17,3 +18,5 @@ export const topupWalletSchema = z.object({
 });
 
 export type TopUpWallet = z.infer<typeof topupWalletSchema>;
+
+export type WalletPocket = PocketSelect & WalletSelect;
