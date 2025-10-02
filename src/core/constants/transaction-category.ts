@@ -84,3 +84,5 @@ export const TRANSACTION_CATEGORY = {
   WATER: "Water",
   WEDDING: "Wedding",
 } as const
+
+export type TransactionCategory = (typeof TRANSACTION_CATEGORY)[keyof typeof TRANSACTION_CATEGORY]
