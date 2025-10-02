@@ -53,7 +53,7 @@ export class TransactionService {
       }
 
       wallet.balance += transaction.amount;
-      wallet.availableBalance += transaction.amount;
+      wallet.totalBalance += transaction.amount;
 
       await tx.update(pockets)
         .set({
@@ -63,7 +63,7 @@ export class TransactionService {
 
       await tx.update(walletPockets)
         .set({
-          availableBalance: wallet.availableBalance,
+          totalBalance: wallet.totalBalance,
         })
         .where(eq(walletPockets.pocketId, payload.pocketId));
 
