@@ -4,6 +4,7 @@ import { PocketService } from './pocket.service';
 import { CreatePocketRequest, PocketFilter } from './pocket.schema';
 import { WalletService } from '../wallets/wallet.service';
 import { Drizzle } from 'db';
+import { POCKET_TYPE } from '@/core/constants/pocket-type';
 
 export abstract class ListPocketCase {
   static async execute(user: User, query?: PocketFilter): Promise<SimplePocket[]> {
@@ -18,7 +19,7 @@ export abstract class CreatePocketCase {
     const walletService = new WalletService(Drizzle.getInstance());
     const pocketService = new PocketService(Drizzle.getInstance());
     const wallet = await walletService.get(user);
-    const pocket = await pocketService.create(user, data, wallet);
+    const pocket = await pocketService.create(user, data, { ...wallet, type: POCKET_TYPE.WALLET });
     return new SimplePocket(pocket);
   }
 }
