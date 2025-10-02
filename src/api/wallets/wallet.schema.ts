@@ -1,3 +1,4 @@
+import { AppDate } from '@/core/lib/app-date';
 import { walletPockets } from 'db/schemas/wallet-pockets';
 import { createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import z from 'zod';
@@ -12,6 +13,7 @@ export const topupWalletSchema = z.object({
   accountId: z.number(),
   amount: z.number(),
   description: z.string().optional().nullable(),
+  date: z.number().int().default(() => new AppDate().unix()),
 });
 
 export type TopUpWallet = z.infer<typeof topupWalletSchema>;

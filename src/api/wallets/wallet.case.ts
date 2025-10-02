@@ -42,10 +42,10 @@ export abstract class TopUpWalletCase {
     const walletService = new WalletService(Drizzle.getInstance());
     const transactionService = new TransactionService(Drizzle.getInstance());
     const currentWallet = await walletService.get(user);
-    const { amount, description, accountId } = request;
+    const { amount, description, accountId, date } = request;
     const wallet = await transactionService.topUp({
       amount,
-      date: dayjs().unix(),
+      date,
       description,
       userId: user.uid,
       pocketId: currentWallet.pocketId,
