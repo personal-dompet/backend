@@ -42,12 +42,6 @@ export class SimplePocket {
     this.priority = data.priority;
     this.type = data.type as PocketType;
 
-    if (this.type === POCKET_TYPE.RECURRING) {
-      this.balance = data.recurring?.balance || 0;
-    } else if (this.type === POCKET_TYPE.SAVING) {
-      this.balance = data.saving?.balance || 0;
-    } else {
-      this.balance = data.spending?.balance || 0;
-    }
+    this.balance = data.balance;
   }
 }

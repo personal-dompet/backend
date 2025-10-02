@@ -3,7 +3,7 @@ import { PocketType } from '@/core/constants/pocket-type';
 export class Wallet {
   id: number;
   userId: string;
-  availableBalance: number;
+  totalBalance: number;
   balance: number;
   name: string;
   type: PocketType;
@@ -13,7 +13,7 @@ export class Wallet {
   constructor(data: Wallet) {
     this.id = data.id;
     this.userId = data.userId;
-    this.availableBalance = data.availableBalance;
+    this.totalBalance = data.totalBalance;
     this.balance = data.balance;
     this.name = data.name;
     this.type = data.type;
