@@ -92,16 +92,8 @@ export class PocketService {
       .select()
       .from(pockets)
       .where(and(...queries))
-      .leftJoin(savingPockets, eq(pockets.id, savingPockets.pocketId))
-      .leftJoin(recurringPockets, eq(pockets.id, recurringPockets.pocketId))
-      .leftJoin(spendingPockets, eq(pockets.id, spendingPockets.pocketId))
       .orderBy(desc(pockets.createdAt))
 
-    return allPockets.map((pocket) => ({
-      ...pocket.pockets,
-      saving: pocket.saving_pockets,
-      recurring: pocket.recurring_pockets,
-      spending: pocket.spending_pockets,
-    }));
+    return allPockets;
   }
 }

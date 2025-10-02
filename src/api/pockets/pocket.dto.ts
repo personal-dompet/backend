@@ -1,47 +1,26 @@
-import { POCKET_TYPE, PocketType } from '@/core/constants/pocket-type';
-import { AllPocket } from './pocket.schema';
+import { PocketType } from '@/core/constants/pocket-type';
+import { PocketSelect } from './pocket.schema';
 
 export class Pocket {
   id: number;
-  userId: string;
   name: string;
-  description?: string | null;
   color?: string | null;
+  balance: number;
   icon?: string | null;
   priority: number;
+  type: PocketType;
   createdAt: number;
   updatedAt: number | null;
 
-  constructor(data: Pocket) {
+  constructor(data: PocketSelect) {
     this.id = data.id;
-    this.userId = data.userId;
     this.name = data.name;
-    this.description = data.description;
     this.color = data.color;
     this.icon = data.icon;
     this.priority = data.priority;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
-  }
-}
-
-export class SimplePocket {
-  id: number;
-  name: string;
-  color?: string | null;
-  icon?: string | null;
-  priority: number;
-  balance: number;
-  type: PocketType;
-
-  constructor(data: AllPocket) {
-    this.id = data.id;
-    this.name = data.name;
-    this.color = data.color;
-    this.icon = data.icon;
-    this.priority = data.priority;
     this.type = data.type as PocketType;
-
     this.balance = data.balance;
   }
 }
