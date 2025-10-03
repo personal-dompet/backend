@@ -1,7 +1,7 @@
 import { transactions } from 'db/schemas/transactions';
-import { TransactionInsert, TransactionSelect, TransactionFilter } from './transaction.schema';
+import { TransactionInsert, TransactionSelect, TransactionFilter, TransactionDetailSelect } from './transaction.schema';
 import { and, asc, desc, ilike, gte, lte, eq, isNull } from 'drizzle-orm';
-import { User } from '@/core/entities/user-entity';
+import { User } from '@/core/dto/user';
 import { WalletPocket } from '../wallets/wallet.schema';
 import { walletPockets } from 'db/schemas/wallet-pockets';
 import { walletColumns } from '../wallets/wallet.column';
@@ -11,6 +11,7 @@ import { accountColumns } from '../accounts/account.column';
 import { accounts } from 'db/schemas/accounts';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { Drizzle } from 'db';
+import { transactionColumns } from './transaction.column';
 
 export class TransactionService {
   private drizzle: Drizzle;
@@ -90,7 +91,7 @@ export class TransactionService {
     return result;
   }
 
-  async list(user: User, filter: TransactionFilter): Promise<TransactionSelect[]> {
+  async list(user: User, filter: TransactionFilter): Promise<TransactionDetailSelect[]> {
     const {
       page,
       limit = 20,
@@ -130,8 +131,14 @@ export class TransactionService {
         transactions.createdAt;
 
     const result = await this.db
-      .select()
+      .select({
+        ...transactionColumns,
+        account: accounts,
+        pocket: pockets,
+      })
       .from(transactions)
+      .innerJoin(accounts, eq(transactions.accountId, accounts.id))
+      .innerJoin(pockets, eq(transactions.pocketId, pockets.id))
       .where(and(...conditions))
       .orderBy(sortOrder === 'asc' ? asc(sortColumn) : desc(sortColumn))
       .limit(limit).offset(offset);

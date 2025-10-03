@@ -45,6 +45,6 @@ export type TransactionSelect = z.infer<typeof transactionSelectSchema>
 export type TransactionFilter = z.infer<typeof transactionFilterSchema>
 
 export type TransactionDetailSelect = TransactionSelect & {
-  pocket?: PocketSelect | null;
-  account?: AccountSelect | null;
+  pocket: PocketSelect;
+  account: AccountSelect;
 }
