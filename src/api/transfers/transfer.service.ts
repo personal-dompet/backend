@@ -6,7 +6,7 @@ import { pocketTransfers } from 'db/schemas/pocket-transfers';
 import { pockets } from 'db/schemas/pockets';
 import { and, eq, gte, lte, isNull, ilike, asc, desc } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
-import { User } from '@/core/entities/user-entity';
+import { User } from '@/core/dto/user';
 
 export class TransferService {
   private drizzle: Drizzle;

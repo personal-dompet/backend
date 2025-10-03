@@ -1,9 +1,10 @@
-import { User } from '@/core/entities/user-entity';
+import { User } from '@/core/dto/user';
 import { TransactionService } from './transaction.service';
 import { Drizzle } from 'db';
+import { TransactionDetailSelect } from './transaction.schema';
 
 export abstract class RecentTransactionCase {
-  static async execute(user: User) {
+  static async execute(user: User): Promise<TransactionDetailSelect[]> {
     const transactionService = new TransactionService(Drizzle.getInstance());
     const transactions = await transactionService.list(user, {
       page: 1,

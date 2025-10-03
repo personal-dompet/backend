@@ -1,6 +1,6 @@
 import { logger } from 'hono/logger'
 import { auth } from './firebase-admin';
-import { User } from './core/entities/user-entity';
+import { User } from './core/dto/user';
 import { honoApp } from './core/lib/hono';
 import { walletController } from './api/wallets/wallet.controller';
 import { transactionController } from './api/transactions/transaction.controller';

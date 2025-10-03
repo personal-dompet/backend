@@ -2,7 +2,7 @@ import { walletPockets } from 'db/schemas/wallet-pockets';
 import { WalletPocket, WalletSelect, WalletUpdate } from './wallet.schema';
 import { pockets } from 'db/schemas/pockets';
 import { and, eq, isNull } from 'drizzle-orm';
-import { User } from '@/core/entities/user-entity';
+import { User } from '@/core/dto/user';
 import { walletColumns } from './wallet.column';
 import { pocketColumns } from '../pockets/pocket.column';
 import { PocketSelect } from '../pockets/pocket.schema';

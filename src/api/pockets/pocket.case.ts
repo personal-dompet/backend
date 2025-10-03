@@ -1,4 +1,4 @@
-import { User } from '@/core/entities/user-entity';
+import { User } from '@/core/dto/user';
 import { PocketService } from './pocket.service';
 import { CreatePocketRequest, PocketFilter } from './pocket.schema';
 import { WalletService } from '../wallets/wallet.service';

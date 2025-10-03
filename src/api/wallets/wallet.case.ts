@@ -1,4 +1,4 @@
-import { User } from '@/core/entities/user-entity';
+import { User } from '@/core/dto/user';
 import { Wallet } from './wallet.dto';
 import { WalletService } from './wallet.service';
 import { TopUpWallet } from './wallet.schema';
@@ -6,7 +6,6 @@ import { TransactionService } from '../transactions/transaction.service';
 import { TRANSACTION_TYPE } from '@/core/constants/transaction-type';
 import { TRANSACTION_CATEGORY } from '@/core/constants/transaction-category';
 import { Drizzle } from 'db';
-import { POCKET_TYPE } from '@/core/constants/pocket-type';
 
 export abstract class GetDetailWalletCase {
   static async execute(user: User): Promise<Wallet> {
@@ -34,8 +33,9 @@ export abstract class InitWalletCase {
 
 export abstract class TopUpWalletCase {
   static async execute(user: User, request: TopUpWallet): Promise<Wallet> {
-    const walletService = new WalletService(Drizzle.getInstance());
-    const transactionService = new TransactionService(Drizzle.getInstance());
+    const drizzle = Drizzle.getInstance();
+    const walletService = new WalletService(drizzle);
+    const transactionService = new TransactionService(drizzle);
     const currentWallet = await walletService.get(user);
     const { amount, description, accountId, date } = request;
     const wallet = await transactionService.topUp({

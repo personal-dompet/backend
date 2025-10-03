@@ -1,4 +1,4 @@
-import { User } from '@/core/entities/user-entity';
+import { User } from '@/core/dto/user';
 import { SpendingPocketSelect } from './spending-pocket.schema';
 import { Pocket } from '../pocket.dto';
 import { spendingPockets } from 'db/schemas/spending-pockets';

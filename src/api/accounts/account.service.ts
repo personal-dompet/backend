@@ -1,4 +1,4 @@
-import { User } from '@/core/entities/user-entity';
+import { User } from '@/core/dto/user';
 import { AccountFilter, AccountSelect, CreateAccountRequest } from './account.schema';
 import { Drizzle } from 'db';
 import { accounts } from 'db/schemas/accounts';

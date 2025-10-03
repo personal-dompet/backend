@@ -1,4 +1,4 @@
-import { User } from '@/core/entities/user-entity';
+import { User } from '@/core/dto/user';
 import { AllPocket, CreatePocketRequest, PocketFilter, PocketInsert, PocketSelect } from './pocket.schema';
 import { pockets } from 'db/schemas/pockets';
 import { and, desc, eq, ilike, not } from 'drizzle-orm';
