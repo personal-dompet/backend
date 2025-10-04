@@ -11,22 +11,22 @@ const transactionSelectSchema = createSelectSchema(transactions)
 
 export const transactionFilterSchema = z.object({
   // Pagination - page is mandatory as requested
-  page: z.number().int().positive(),
-  limit: z.number().int().positive().max(100).default(20),
+  page: z.string().transform((value) => parseInt(value)),
+  limit: z.string().transform((value) => parseInt(value)),
 
   // Pocket filter
-  pocketId: z.number().optional(),
+  pocketId: z.string().transform((value) => parseInt(value)).optional(),
 
   // Amount range filter
-  minAmount: z.number().optional(),
-  maxAmount: z.number().optional(),
+  minAmount: z.string().transform((value) => parseInt(value)).optional(),
+  maxAmount: z.string().transform((value) => parseInt(value)).optional(),
 
   // Date range filter (Unix timestamps)
-  startDate: z.number().optional(),
-  endDate: z.number().optional(),
+  startDate: z.string().transform((value) => parseInt(value)).optional(),
+  endDate: z.string().transform((value) => parseInt(value)).optional(),
 
-  startCreatedAt: z.number().optional(),
-  endCreatedAt: z.number().optional(),
+  startCreatedAt: z.string().transform((value) => parseInt(value)).optional(),
+  endCreatedAt: z.string().transform((value) => parseInt(value)).optional(),
 
   // Type and category filters
   type: z.enum(TRANSACTION_TYPE).optional(),
