@@ -16,21 +16,21 @@ export const pocketTransferRequestSchema = transferInsertSchema.extend(pocketTra
 
 export const pocketTransferFilterSchema = z.object({
   // Pagination - page is mandatory as requested
-  page: z.number().int().positive(),
-  limit: z.number().int().positive().max(100).default(20),
+  page: z.string().transform((value) => parseInt(value)),
+  limit: z.string().transform((value) => parseInt(value)).default(20),
 
-  sourcePocketId: z.number().int().optional(),
-  destinationPocketId: z.number().int().optional(),
+  sourcePocketId: z.string().transform((value) => parseInt(value)).optional(),
+  destinationPocketId: z.string().transform((value) => parseInt(value)).optional(),
 
   // Amount range filter
-  minAmount: z.number().int().optional(),
-  maxAmount: z.number().int().optional(),
+  minAmount: z.string().transform((value) => parseInt(value)).optional(), 
+  maxAmount: z.string().transform((value) => parseInt(value)).optional(),
 
   // Date range filter (Unix timestamps)
-  startDate: z.number().int().optional(),
-  endDate: z.number().int().optional(),
-  startCreatedAt: z.number().int().optional(),
-  endCreatedAt: z.number().int().optional(),
+  startDate: z.string().transform((value) => parseInt(value)).optional(), 
+  endDate: z.string().transform((value) => parseInt(value)).optional(),
+  startCreatedAt: z.string().transform((value) => parseInt(value)).optional(),
+  endCreatedAt: z.string().transform((value) => parseInt(value)).optional(),
 
   // Search in description
   search: z.string().optional(),
