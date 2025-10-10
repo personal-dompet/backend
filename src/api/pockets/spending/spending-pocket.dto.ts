@@ -1,22 +1,13 @@
-export class SpendingPocket {
-  id: number;
-  name: string;
-  description?: string | null;
-  color?: string | null;
-  icon?: string | null;
-  priority: number;
-  balance: number;
+import { Pocket } from '../pocket.dto';
+import { PocketSelect } from '../pocket.schema';
+import { SpendingPocketSelect } from './spending-pocket.schema';
+
+export class SpendingPocket extends Pocket {
   lowBalanceThreshold: number;
   lowBalanceReminder: boolean;
 
-  constructor(spendingPocket: SpendingPocket) {
-    this.id = spendingPocket.id;
-    this.name = spendingPocket.name;
-    this.description = spendingPocket.description;
-    this.color = spendingPocket.color;
-    this.icon = spendingPocket.icon;
-    this.priority = spendingPocket.priority;
-    this.balance = spendingPocket.balance;
+  constructor(spendingPocket: PocketSelect & SpendingPocketSelect) {
+    super(spendingPocket);
     this.lowBalanceThreshold = spendingPocket.lowBalanceThreshold;
     this.lowBalanceReminder = spendingPocket.lowBalanceReminder;
   }
