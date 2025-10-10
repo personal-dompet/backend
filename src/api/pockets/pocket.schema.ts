@@ -16,11 +16,6 @@ export const pocketFilterSchema = z.object({
   keyword: z.string().optional().nullable()
 })
 
-// String get name => nameControl.value ?? '';
-// PocketColor? get color => colorControl.value;
-// Category? get icon => iconControl.value;
-// PocketType? get type => typeControl.value;
-
 export const createPocketSchema = z.object({
   name: z.string().min(1),
   type: z.enum(POCKET_TYPE),
