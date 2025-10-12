@@ -1,6 +1,5 @@
 import { User } from '@/core/dto/user';
 import { CreateSpendingPocket, SpendingPocketSelect } from './spending-pocket.schema';
-import { Pocket } from '../pocket.dto';
 import { spendingPockets } from 'db/schemas/spending-pockets';
 import { Wallet } from '@/api/wallets/wallet.dto';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';

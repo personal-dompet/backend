@@ -4,6 +4,10 @@ import { zValidator } from '@hono/zod-validator';
 import { createPocketSchema, pocketFilterSchema } from './pocket.schema';
 import { createSpendingPocketSchema } from './spending/spending-pocket.schema';
 import { CreateSpendingPocketCase } from './spending/spending-pocket.case';
+import { createRecurringPocketSchema } from './recurring/recurring-pocket.schema';
+import { CreateRecurringPocketCase } from './recurring/recurring-pocket.case';
+import { createSavingPocketSchema } from './saving/saving-pocket.schema';
+import { CreateSavingPocketCase } from './saving/saving-pocket.case';
 
 const controller = honoApp();
 
@@ -26,6 +30,20 @@ controller.post('/spendings', zValidator('json', createSpendingPocketSchema), as
   const payload = c.req.valid('json');
   const spendingPocket = await CreateSpendingPocketCase.execute(user, payload);
   return c.json(spendingPocket);
+});
+
+controller.post('/recurrings', zValidator('json', createRecurringPocketSchema), async (c) => {
+  const user = c.get('user');
+  const payload = c.req.valid('json');
+  const recurringPocket = await CreateRecurringPocketCase.execute(user, payload);
+  return c.json(recurringPocket);
+});
+
+controller.post('/savings', zValidator('json', createSavingPocketSchema), async (c) => {
+  const user = c.get('user');
+  const payload = c.req.valid('json');
+  const savingPocket = await CreateSavingPocketCase.execute(user, payload);
+  return c.json(savingPocket);
 });
 
 export const pocketController = controller;
