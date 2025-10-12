@@ -11,7 +11,7 @@ const recurringPocketInsertSchema = createInsertSchema(recurringPockets).pick({
   productName: true,
 });
 
-const createRecurringPocketSchema = createPocketSchema.extend(recurringPocketInsertSchema.shape)
+export const createRecurringPocketSchema = createPocketSchema.extend(recurringPocketInsertSchema.shape)
 
 export type RecurringPocketSelect = z.infer<typeof recurringPocketSelectSchema>;
 
