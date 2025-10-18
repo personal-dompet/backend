@@ -1,14 +1,20 @@
-import { User } from '@/core/dto/user';
-import { AllPocket, CreatePocketRequest, PocketFilter, PocketInsert, PocketSelect } from './pocket.schema';
-import { pockets } from 'db/schemas/pockets';
-import { and, desc, eq, ilike, not } from 'drizzle-orm';
-import { savingPockets } from 'db/schemas/saving-pockets';
-import { recurringPockets } from 'db/schemas/recurring-pockets';
-import { spendingPockets } from 'db/schemas/spending-pockets';
-import { POCKET_TYPE } from '@/core/constants/pocket-type';
-import { Wallet } from '../wallets/wallet.dto';
-import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { Drizzle } from 'db';
+import { User } from "@/core/dto/user";
+import {
+  AllPocket,
+  CreatePocketRequest,
+  PocketFilter,
+  PocketInsert,
+  PocketSelect,
+} from "./pocket.schema";
+import { pockets } from "db/schemas/pockets";
+import { and, desc, eq, ilike, not } from "drizzle-orm";
+import { savingPockets } from "db/schemas/saving-pockets";
+import { recurringPockets } from "db/schemas/recurring-pockets";
+import { spendingPockets } from "db/schemas/spending-pockets";
+import { POCKET_TYPE } from "@/core/constants/pocket-type";
+import { Wallet } from "../wallets/wallet.dto";
+import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { Drizzle } from "db";
 
 export class PocketService {
   private drizzle: Drizzle;
@@ -31,7 +37,11 @@ export class PocketService {
     return pocket;
   }
 
-  async create(user: User, payload: CreatePocketRequest, wallet: Wallet): Promise<PocketSelect> {
+  async create(
+    user: User,
+    payload: CreatePocketRequest,
+    wallet: Wallet
+  ): Promise<PocketSelect> {
     const pocket = await this.db.transaction(async (tx) => {
       const [pocket] = await tx
         .insert(pockets)
@@ -58,7 +68,7 @@ export class PocketService {
         });
       }
       return pocket;
-    })
+    });
 
     return pocket;
   }
@@ -74,9 +84,7 @@ export class PocketService {
   }
 
   async list(user: User, query?: PocketFilter): Promise<AllPocket[]> {
-    const queries = [
-      eq(pockets.userId, user.uid),
-    ]
+    const queries = [eq(pockets.userId, user.uid)];
 
     if (query?.type) {
       queries.push(eq(pockets.type, query.type));
@@ -92,7 +100,7 @@ export class PocketService {
       .select()
       .from(pockets)
       .where(and(...queries))
-      .orderBy(desc(pockets.createdAt))
+      .orderBy(desc(pockets.createdAt));
 
     return allPockets;
   }
