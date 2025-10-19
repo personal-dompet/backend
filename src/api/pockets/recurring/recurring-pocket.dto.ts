@@ -3,15 +3,15 @@ import { PocketSelect } from "../pocket.schema";
 import { RecurringPocketSelect } from "./recurring-pocket.schema";
 
 export class RecurringPocket extends Pocket {
-  amount: number;
-  dueDate?: number | null;
+  amount?: number | null;
+  billingDate?: number | null;
   productDescription?: string | null;
-  productName: string;
+  productName?: string | null;
 
   constructor(recurringPocket: PocketSelect & RecurringPocketSelect) {
     super(recurringPocket);
     this.amount = recurringPocket.amount;
-    this.dueDate = recurringPocket.billingDate;
+    this.billingDate = recurringPocket.billingDate;
     this.productDescription = recurringPocket.productDescription;
     this.productName = recurringPocket.productName;
   }
