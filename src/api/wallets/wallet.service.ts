@@ -1,14 +1,14 @@
-import { walletPockets } from 'db/schemas/wallet-pockets';
-import { WalletPocket, WalletSelect, WalletUpdate } from './wallet.schema';
-import { pockets } from 'db/schemas/pockets';
-import { and, eq, isNull } from 'drizzle-orm';
-import { User } from '@/core/dto/user';
-import { walletColumns } from './wallet.column';
-import { pocketColumns } from '../pockets/pocket.column';
-import { PocketSelect } from '../pockets/pocket.schema';
-import { POCKET_TYPE } from '@/core/constants/pocket-type';
-import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { Drizzle } from 'db';
+import { walletPockets } from "db/schemas/wallet-pockets";
+import { WalletPocket, WalletSelect, WalletUpdate } from "./wallet.schema";
+import { pockets } from "db/schemas/pockets";
+import { and, eq, isNull } from "drizzle-orm";
+import { User } from "@/core/dto/user";
+import { walletColumns } from "./wallet.column";
+import { pocketColumns } from "../pockets/pocket.column";
+import { PocketSelect } from "../pockets/pocket.schema";
+import { POCKET_TYPE } from "@/core/constants/pocket-type";
+import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { Drizzle } from "db";
 
 export class WalletService {
   private drizzle: Drizzle;
@@ -21,14 +21,18 @@ export class WalletService {
     return this.drizzle.db;
   }
 
-  async create(user: User): Promise<[WalletSelect, PocketSelect]> {
+  async create(
+    user: User,
+    color: string
+  ): Promise<[WalletSelect, PocketSelect]> {
     const [wallet, pocket] = await this.db.transaction(async (tx) => {
       const [pocket] = await tx
         .insert(pockets)
         .values({
           userId: user.uid,
-          name: 'Wallet',
+          name: "Wallet",
           type: POCKET_TYPE.WALLET,
+          color: `#${color}`,
         })
         .returning();
 
@@ -38,12 +42,15 @@ export class WalletService {
           pocketId: pocket.id,
           userId: pocket.userId,
         })
-        .onConflictDoUpdate({ target: walletPockets.pocketId, set: { pocketId: pocket.id } })
+        .onConflictDoUpdate({
+          target: walletPockets.pocketId,
+          set: { pocketId: pocket.id },
+        })
         .returning();
 
       return [wallet, pocket];
-    })
-    return [wallet, pocket]
+    });
+    return [wallet, pocket];
   }
 
   async get(user: User): Promise<WalletPocket> {
@@ -60,7 +67,10 @@ export class WalletService {
     return wallet;
   }
 
-  async update(pocket: PocketSelect, updates: WalletUpdate): Promise<WalletSelect> {
+  async update(
+    pocket: PocketSelect,
+    updates: WalletUpdate
+  ): Promise<WalletSelect> {
     try {
       const [wallet] = await this.db
         .update(walletPockets)
@@ -70,7 +80,7 @@ export class WalletService {
 
       return wallet;
     } catch (error) {
-      console.error('Error updating wallet:', error);
+      console.error("Error updating wallet:", error);
       throw error;
     }
   }

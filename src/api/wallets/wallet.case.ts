@@ -1,29 +1,29 @@
-import { User } from '@/core/dto/user';
-import { Wallet } from './wallet.dto';
-import { WalletService } from './wallet.service';
-import { TopUpWallet } from './wallet.schema';
-import { TransactionService } from '../transactions/transaction.service';
-import { TRANSACTION_TYPE } from '@/core/constants/transaction-type';
-import { TRANSACTION_CATEGORY } from '@/core/constants/transaction-category';
-import { Drizzle } from 'db';
+import { User } from "@/core/dto/user";
+import { Wallet } from "./wallet.dto";
+import { WalletService } from "./wallet.service";
+import { TopUpWallet, WalletColor } from "./wallet.schema";
+import { TransactionService } from "../transactions/transaction.service";
+import { TRANSACTION_TYPE } from "@/core/constants/transaction-type";
+import { TRANSACTION_CATEGORY } from "@/core/constants/transaction-category";
+import { Drizzle } from "db";
 
 export abstract class GetDetailWalletCase {
-  static async execute(user: User): Promise<Wallet> {
+  static async execute(user: User, query: WalletColor): Promise<Wallet> {
     const walletService = new WalletService(Drizzle.getInstance());
     const wallet = await walletService.get(user);
 
     if (wallet) return new Wallet(wallet);
 
-    const newWallet = await InitWalletCase.execute(user);
+    const newWallet = await InitWalletCase.execute(user, query);
 
     return newWallet;
   }
 }
 
 export abstract class InitWalletCase {
-  static async execute(user: User): Promise<Wallet> {
+  static async execute(user: User, query: WalletColor): Promise<Wallet> {
     const walletService = new WalletService(Drizzle.getInstance());
-    const [wallet, pocket] = await walletService.create(user);
+    const [wallet, pocket] = await walletService.create(user, query.color);
     return new Wallet({
       ...pocket,
       ...wallet,
@@ -47,7 +47,7 @@ export abstract class TopUpWalletCase {
       type: TRANSACTION_TYPE.INCOME,
       category: TRANSACTION_CATEGORY.TOP_UP,
       accountId: accountId,
-    })
-    return new Wallet(wallet)
+    });
+    return new Wallet(wallet);
   }
 }
