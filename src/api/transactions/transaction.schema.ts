@@ -1,13 +1,22 @@
-import { TRANSACTION_CATEGORY } from '@/core/constants/transaction-category';
-import { TRANSACTION_TYPE } from '@/core/constants/transaction-type';
-import { transactions } from 'db/schemas/transactions';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import z from 'zod';
-import { PocketSelect } from '../pockets/pocket.schema';
-import { AccountSelect } from '../accounts/account.schema';
+import { TRANSACTION_CATEGORY } from "@/core/constants/transaction-category";
+import { TRANSACTION_TYPE } from "@/core/constants/transaction-type";
+import { transactions } from "db/schemas/transactions";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import z from "zod";
+import { PocketSelect } from "../pockets/pocket.schema";
+import { AccountSelect } from "../accounts/account.schema";
 
-const transactionInsertSchema = createInsertSchema(transactions)
-const transactionSelectSchema = createSelectSchema(transactions)
+export const transactionInsertSchema = createInsertSchema(transactions).pick({
+  accountId: true,
+  amount: true,
+  category: true,
+  date: true,
+  description: true,
+  pocketId: true,
+  type: true,
+});
+
+const transactionSelectSchema = createSelectSchema(transactions);
 
 export const transactionFilterSchema = z.object({
   // Pagination - page is mandatory as requested
@@ -15,18 +24,39 @@ export const transactionFilterSchema = z.object({
   limit: z.string().transform((value) => parseInt(value)),
 
   // Pocket filter
-  pocketId: z.string().transform((value) => parseInt(value)).optional(),
+  pocketId: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
 
   // Amount range filter
-  minAmount: z.string().transform((value) => parseInt(value)).optional(),
-  maxAmount: z.string().transform((value) => parseInt(value)).optional(),
+  minAmount: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
+  maxAmount: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
 
   // Date range filter (Unix timestamps)
-  startDate: z.string().transform((value) => parseInt(value)).optional(),
-  endDate: z.string().transform((value) => parseInt(value)).optional(),
+  startDate: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
+  endDate: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
 
-  startCreatedAt: z.string().transform((value) => parseInt(value)).optional(),
-  endCreatedAt: z.string().transform((value) => parseInt(value)).optional(),
+  startCreatedAt: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
+  endCreatedAt: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
 
   // Type and category filters
   type: z.enum(TRANSACTION_TYPE).optional(),
@@ -36,15 +66,15 @@ export const transactionFilterSchema = z.object({
   search: z.string().optional(),
 
   // Sorting options
-  sortBy: z.enum(['date', 'amount', 'createdAt']).default('date'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  sortBy: z.enum(["date", "amount", "createdAt"]).default("date"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
-export type TransactionInsert = z.infer<typeof transactionInsertSchema>
-export type TransactionSelect = z.infer<typeof transactionSelectSchema>
-export type TransactionFilter = z.infer<typeof transactionFilterSchema>
+export type TransactionInsert = z.infer<typeof transactionInsertSchema>;
+export type TransactionSelect = z.infer<typeof transactionSelectSchema>;
+export type TransactionFilter = z.infer<typeof transactionFilterSchema>;
 
 export type TransactionDetailSelect = TransactionSelect & {
   pocket: PocketSelect;
   account: AccountSelect;
-}
+};

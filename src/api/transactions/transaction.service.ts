@@ -1,17 +1,33 @@
-import { transactions } from 'db/schemas/transactions';
-import { TransactionInsert, TransactionSelect, TransactionFilter, TransactionDetailSelect } from './transaction.schema';
-import { and, asc, desc, ilike, gte, lte, eq, isNull } from 'drizzle-orm';
-import { User } from '@/core/dto/user';
-import { WalletPocket } from '../wallets/wallet.schema';
-import { walletPockets } from 'db/schemas/wallet-pockets';
-import { walletColumns } from '../wallets/wallet.column';
-import { pockets } from 'db/schemas/pockets';
-import { pocketColumns } from '../pockets/pocket.column';
-import { accountColumns } from '../accounts/account.column';
-import { accounts } from 'db/schemas/accounts';
-import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { Drizzle } from 'db';
-import { transactionColumns } from './transaction.column';
+import { transactions } from "db/schemas/transactions";
+import {
+  TransactionInsert,
+  TransactionSelect,
+  TransactionFilter,
+  TransactionDetailSelect,
+} from "./transaction.schema";
+import {
+  and,
+  asc,
+  desc,
+  ilike,
+  gte,
+  lte,
+  eq,
+  isNull,
+  isNotNull,
+} from "drizzle-orm";
+import { User } from "@/core/dto/user";
+import { WalletPocket } from "../wallets/wallet.schema";
+import { walletPockets } from "db/schemas/wallet-pockets";
+import { walletColumns } from "../wallets/wallet.column";
+import { pockets } from "db/schemas/pockets";
+import { pocketColumns } from "../pockets/pocket.column";
+import { accountColumns } from "../accounts/account.column";
+import { accounts } from "db/schemas/accounts";
+import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { Drizzle } from "db";
+import { transactionColumns } from "./transaction.column";
+import { TRANSACTION_TYPE } from "@/core/constants/transaction-type";
 
 export class TransactionService {
   private drizzle: Drizzle;
@@ -24,24 +40,83 @@ export class TransactionService {
     return this.drizzle.db;
   }
 
-  async create(payload: TransactionInsert): Promise<TransactionSelect> {
-    const [transaction] = await this.db
-      .insert(transactions)
-      .values(payload)
-      .returning();
-    return transaction;
+  async create(
+    user: User,
+    payload: TransactionInsert
+  ): Promise<TransactionDetailSelect> {
+    const result = await this.db.transaction(
+      async (tx): Promise<TransactionDetailSelect> => {
+        const [transaction] = await tx
+          .insert(transactions)
+          .values({
+            ...payload,
+            userId: user.uid,
+          })
+          .returning();
+
+        const accountQuery = and(
+          isNotNull(accounts.deletedAt),
+          eq(accounts.id, payload.accountId)
+        );
+
+        const pocketQuery = and(
+          isNotNull(accounts.deletedAt),
+          eq(accounts.id, payload.accountId)
+        );
+
+        const [[pocket], [account]] = await Promise.all([
+          tx.select().from(pockets).where(pocketQuery).limit(1),
+          tx.select().from(accounts).where(accountQuery).limit(1),
+        ]);
+
+        if (payload.type === TRANSACTION_TYPE.INCOME) {
+          pocket.balance = pocket.balance + payload.amount;
+          account.balance = account.balance + payload.amount;
+        }
+
+        if (payload.type === TRANSACTION_TYPE.EXPENSE) {
+          pocket.balance = pocket.balance - payload.amount;
+          account.balance = account.balance - payload.amount;
+        }
+
+        await Promise.all([
+          tx
+            .update(pockets)
+            .set({
+              balance: pocket.balance,
+            })
+            .where(pocketQuery),
+          tx
+            .update(accounts)
+            .set({
+              balance: account.balance,
+            })
+            .where(accountQuery),
+        ]);
+
+        return {
+          ...transaction,
+          account,
+          pocket,
+        };
+      }
+    );
+
+    return result;
   }
 
-  async topUp(payload: TransactionInsert): Promise<WalletPocket> {
+  async topUp(user: User, payload: TransactionInsert): Promise<WalletPocket> {
     const result = await this.db.transaction(async (tx) => {
-      const [transaction] = await tx.insert(transactions)
-        .values(payload)
+      const [transaction] = await tx
+        .insert(transactions)
+        .values({ ...payload, userId: user.uid })
         .returning();
 
-      const [wallet] = await tx.select({
-        ...walletColumns,
-        ...pocketColumns,
-      })
+      const [wallet] = await tx
+        .select({
+          ...walletColumns,
+          ...pocketColumns,
+        })
         .from(walletPockets)
         .innerJoin(pockets, eq(walletPockets.pocketId, pockets.id))
         .where(and(eq(pockets.id, payload.pocketId), isNull(pockets.deletedAt)))
@@ -49,49 +124,56 @@ export class TransactionService {
 
       if (!wallet) {
         tx.rollback();
-        throw new Error('Pocket not found');
+        throw new Error("Pocket not found");
       }
 
       wallet.balance += transaction.amount;
       wallet.totalBalance += transaction.amount;
 
-      await tx.update(pockets)
+      await tx
+        .update(pockets)
         .set({
           balance: wallet.balance,
         })
         .where(eq(pockets.id, payload.pocketId));
 
-      await tx.update(walletPockets)
+      await tx
+        .update(walletPockets)
         .set({
           totalBalance: wallet.totalBalance,
         })
         .where(eq(walletPockets.pocketId, payload.pocketId));
 
-      const [account] = await tx.select(accountColumns)
+      const [account] = await tx
+        .select(accountColumns)
         .from(accounts)
         .where(eq(accounts.id, transaction.accountId))
         .limit(1);
 
       if (!account) {
         tx.rollback();
-        throw new Error('Account not found');
+        throw new Error("Account not found");
       }
 
       account.balance += transaction.amount;
 
-      await tx.update(accounts)
+      await tx
+        .update(accounts)
         .set({
           balance: account.balance,
         })
         .where(eq(accounts.id, transaction.accountId));
 
       return wallet;
-    })
+    });
 
     return result;
   }
 
-  async list(user: User, filter: TransactionFilter): Promise<TransactionDetailSelect[]> {
+  async list(
+    user: User,
+    filter: TransactionFilter
+  ): Promise<TransactionDetailSelect[]> {
     const {
       page,
       limit = 20,
@@ -105,8 +187,8 @@ export class TransactionService {
       search,
       endCreatedAt,
       startCreatedAt,
-      sortBy = 'date',
-      sortOrder = 'desc'
+      sortBy = "date",
+      sortOrder = "desc",
     } = filter;
 
     const offset = (page - 1) * limit;
@@ -119,16 +201,25 @@ export class TransactionService {
       maxAmount !== undefined ? lte(transactions.amount, maxAmount) : undefined,
       startDate !== undefined ? gte(transactions.date, startDate) : undefined,
       endDate !== undefined ? lte(transactions.date, endDate) : undefined,
-      startCreatedAt !== undefined ? gte(transactions.createdAt, startCreatedAt) : undefined,
-      endCreatedAt !== undefined ? lte(transactions.createdAt, endCreatedAt) : undefined,
+      startCreatedAt !== undefined
+        ? gte(transactions.createdAt, startCreatedAt)
+        : undefined,
+      endCreatedAt !== undefined
+        ? lte(transactions.createdAt, endCreatedAt)
+        : undefined,
       type !== undefined ? eq(transactions.type, type) : undefined,
       category !== undefined ? eq(transactions.category, category) : undefined,
-      search !== undefined ? ilike(transactions.description, `%${search}%`) : undefined,
-    ].filter(condition => condition !== undefined);
+      search !== undefined
+        ? ilike(transactions.description, `%${search}%`)
+        : undefined,
+    ].filter((condition) => condition !== undefined);
 
-    const sortColumn = sortBy === 'date' ? transactions.date :
-      sortBy === 'amount' ? transactions.amount :
-        transactions.createdAt;
+    const sortColumn =
+      sortBy === "date"
+        ? transactions.date
+        : sortBy === "amount"
+        ? transactions.amount
+        : transactions.createdAt;
 
     const result = await this.db
       .select({
@@ -140,8 +231,9 @@ export class TransactionService {
       .innerJoin(accounts, eq(transactions.accountId, accounts.id))
       .innerJoin(pockets, eq(transactions.pocketId, pockets.id))
       .where(and(...conditions))
-      .orderBy(sortOrder === 'asc' ? asc(sortColumn) : desc(sortColumn))
-      .limit(limit).offset(offset);
+      .orderBy(sortOrder === "asc" ? asc(sortColumn) : desc(sortColumn))
+      .limit(limit)
+      .offset(offset);
     return result;
   }
 }
