@@ -2,6 +2,8 @@ import { honoApp } from '@/core/lib/hono';
 import { CreateAccountCase, ListAccountCase } from './account.case';
 import { zValidator } from '@hono/zod-validator';
 import { createAccountSchema, accountFilterSchema } from './account.schema';
+import { createAccountDetailSchema } from './detail/account-detail.schema';
+import { CreateAccountDetailCase } from './detail/account-detail.case';
 
 const controller = honoApp();
 
@@ -18,5 +20,12 @@ controller.post('/', zValidator('json', createAccountSchema), async (c) => {
   const account = await CreateAccountCase.execute(user, payload);
   return c.json(account);
 });
+
+controller.post('/detail', zValidator('json', createAccountDetailSchema), async (c) => {
+  const user = c.get('user');
+  const payload = c.req.valid('json');
+  const accountDetail = await CreateAccountDetailCase.execute(user, payload);
+  return c.json(accountDetail);
+})
 
 export const accountController = controller;
