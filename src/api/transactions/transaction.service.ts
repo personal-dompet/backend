@@ -1,21 +1,10 @@
 import { transactions } from "db/schemas/transactions";
 import {
   TransactionInsert,
-  TransactionSelect,
   TransactionFilter,
   TransactionDetailSelect,
 } from "./transaction.schema";
-import {
-  and,
-  asc,
-  desc,
-  ilike,
-  gte,
-  lte,
-  eq,
-  isNull,
-  isNotNull,
-} from "drizzle-orm";
+import { and, asc, desc, ilike, gte, lte, eq, isNull } from "drizzle-orm";
 import { User } from "@/core/dto/user";
 import { WalletPocket } from "../wallets/wallet.schema";
 import { walletPockets } from "db/schemas/wallet-pockets";
@@ -55,29 +44,29 @@ export class TransactionService {
           .returning();
 
         const accountQuery = and(
-          isNotNull(accounts.deletedAt),
+          isNull(accounts.deletedAt),
           eq(accounts.id, payload.accountId)
         );
 
         const pocketQuery = and(
-          isNotNull(accounts.deletedAt),
-          eq(accounts.id, payload.accountId)
+          isNull(pockets.deletedAt),
+          eq(pockets.id, payload.pocketId)
         );
 
-        const [[pocket], [account]] = await Promise.all([
+        const walletQuery = eq(walletPockets.pocketId, payload.pocketId);
+
+        const [[pocket], [account], [wallet]] = await Promise.all([
           tx.select().from(pockets).where(pocketQuery).limit(1),
           tx.select().from(accounts).where(accountQuery).limit(1),
+          tx.select().from(walletPockets).where(walletQuery).limit(1),
         ]);
 
-        if (payload.type === TRANSACTION_TYPE.INCOME) {
-          pocket.balance = pocket.balance + payload.amount;
-          account.balance = account.balance + payload.amount;
-        }
+        const relativeAmount =
+          payload.amount * (payload.type === TRANSACTION_TYPE.INCOME ? 1 : -1);
 
-        if (payload.type === TRANSACTION_TYPE.EXPENSE) {
-          pocket.balance = pocket.balance - payload.amount;
-          account.balance = account.balance - payload.amount;
-        }
+        pocket.balance = pocket.balance + relativeAmount;
+        account.balance = account.balance + relativeAmount;
+        wallet.totalBalance = wallet.totalBalance + relativeAmount;
 
         await Promise.all([
           tx
@@ -92,12 +81,19 @@ export class TransactionService {
               balance: account.balance,
             })
             .where(accountQuery),
+          tx
+            .update(walletPockets)
+            .set({
+              totalBalance: wallet.totalBalance,
+            })
+            .where(walletQuery),
         ]);
 
         return {
           ...transaction,
           account,
           pocket,
+          wallet,
         };
       }
     );
@@ -226,10 +222,12 @@ export class TransactionService {
         ...transactionColumns,
         account: accounts,
         pocket: pockets,
+        wallet: walletPockets,
       })
       .from(transactions)
       .innerJoin(accounts, eq(transactions.accountId, accounts.id))
       .innerJoin(pockets, eq(transactions.pocketId, pockets.id))
+      .innerJoin(walletPockets, eq(pockets.id, walletPockets.pocketId))
       .where(and(...conditions))
       .orderBy(sortOrder === "asc" ? asc(sortColumn) : desc(sortColumn))
       .limit(limit)

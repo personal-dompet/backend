@@ -1,9 +1,13 @@
-import { TransactionCategory } from '@/core/constants/transaction-category';
-import { TransactionDetailSelect, TransactionSelect } from './transaction.schema';
-import { TransactionType } from '@/core/constants/transaction-type';
-import { Pocket } from '../pockets/pocket.dto';
-import { Account } from '../accounts/account.dto';
-import { Timestamp } from '@/core/dto/timestamp';
+import { TransactionCategory } from "@/core/constants/transaction-category";
+import {
+  TransactionDetailSelect,
+  TransactionSelect,
+} from "./transaction.schema";
+import { TransactionType } from "@/core/constants/transaction-type";
+import { Pocket } from "../pockets/pocket.dto";
+import { Account } from "../accounts/account.dto";
+import { Timestamp } from "@/core/dto/timestamp";
+import { Wallet } from "../wallets/wallet.dto";
 
 export class Transaction extends Timestamp {
   id: number;
@@ -27,10 +31,15 @@ export class Transaction extends Timestamp {
 export class TransactionDetail extends Transaction {
   pocket: Pocket;
   account: Account;
+  wallet: Wallet;
 
   constructor(data: TransactionDetailSelect) {
     super(data);
     this.pocket = new Pocket(data.pocket);
     this.account = new Account(data.account);
+    this.wallet = new Wallet({
+      ...data.wallet,
+      ...data.pocket,
+    });
   }
 }
