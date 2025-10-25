@@ -8,17 +8,10 @@ const controller = honoApp();
 controller.get("/", zValidator("query", walletColorSchema), async (c) => {
   const user = c.get("user");
   const query = c.req.valid("query");
-  console.log(query);
   const wallet = await GetDetailWalletCase.execute(user, query);
 
   return c.json(wallet);
 });
-
-// controller.post('/init', async (c) => {
-//   const user = c.get('user');
-//   const wallet = await InitWalletCase.execute(user);
-//   return c.json(wallet);
-// });
 
 controller.post("/top-up", zValidator("json", topupWalletSchema), async (c) => {
   const payload = c.req.valid("json");
