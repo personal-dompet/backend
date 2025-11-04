@@ -26,6 +26,7 @@ controller.post("/", zValidator("json", transactionInsertSchema), async (c) => {
   const user = c.get("user");
   const payload = c.req.valid("json");
   const transaction = await RecordTransactionCase.execute(user, payload);
+  console.log(transaction);
   return c.json(transaction);
 });
 

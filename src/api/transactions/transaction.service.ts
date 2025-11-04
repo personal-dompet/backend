@@ -17,6 +17,8 @@ import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Drizzle } from "db";
 import { transactionColumns } from "./transaction.column";
 import { TRANSACTION_TYPE } from "@/core/constants/transaction-type";
+import { alias } from "drizzle-orm/pg-core";
+import { WalletService } from "../wallets/wallet.service";
 
 export class TransactionService {
   private drizzle: Drizzle;
@@ -53,12 +55,20 @@ export class TransactionService {
           eq(pockets.id, payload.pocketId)
         );
 
-        const walletQuery = eq(walletPockets.pocketId, payload.pocketId);
+        const walletQuery = eq(walletPockets.userId, user.uid);
 
         const [[pocket], [account], [wallet]] = await Promise.all([
           tx.select().from(pockets).where(pocketQuery).limit(1),
           tx.select().from(accounts).where(accountQuery).limit(1),
-          tx.select().from(walletPockets).where(walletQuery).limit(1),
+          tx
+            .select({
+              ...walletColumns,
+              ...pocketColumns,
+            })
+            .from(walletPockets)
+            .innerJoin(pockets, eq(walletPockets.pocketId, pockets.id))
+            .where(walletQuery)
+            .limit(1),
         ]);
 
         const relativeAmount =
@@ -217,21 +227,29 @@ export class TransactionService {
         ? transactions.amount
         : transactions.createdAt;
 
-    const result = await this.db
-      .select({
-        ...transactionColumns,
-        account: accounts,
-        pocket: pockets,
-        wallet: walletPockets,
-      })
-      .from(transactions)
-      .innerJoin(accounts, eq(transactions.accountId, accounts.id))
-      .innerJoin(pockets, eq(transactions.pocketId, pockets.id))
-      .innerJoin(walletPockets, eq(pockets.id, walletPockets.pocketId))
-      .where(and(...conditions))
-      .orderBy(sortOrder === "asc" ? asc(sortColumn) : desc(sortColumn))
-      .limit(limit)
-      .offset(offset);
-    return result;
+    const walletService = new WalletService(this.drizzle);
+
+    const [transactionList, wallet] = await Promise.all([
+      this.db
+        .select({
+          ...transactionColumns,
+          account: accounts,
+          pocket: pockets,
+        })
+        .from(transactions)
+        .innerJoin(accounts, eq(transactions.accountId, accounts.id))
+        .innerJoin(pockets, eq(transactions.pocketId, pockets.id))
+        .where(and(...conditions))
+        .orderBy(sortOrder === "asc" ? asc(sortColumn) : desc(sortColumn))
+        .limit(limit)
+        .offset(offset),
+      walletService.get(user),
+    ]);
+    return transactionList.map((transaction) => {
+      return {
+        ...transaction,
+        wallet,
+      };
+    });
   }
 }
