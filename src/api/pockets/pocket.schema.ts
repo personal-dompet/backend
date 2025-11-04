@@ -6,22 +6,22 @@ import { RecurringPocketSelect } from './recurring/recurring-pocket.schema';
 import { SpendingPocketSelect } from './spending/spending-pocket.schema';
 import { POCKET_TYPE } from '@/core/constants/pocket-type';
 
-const pocketSelectSchema = createSelectSchema(pockets)
+const pocketSelectSchema = createSelectSchema(pockets);
 export const pocketInsertSchema = createInsertSchema(pockets).omit({
   userId: true,
-})
+});
 
 export const pocketFilterSchema = z.object({
   type: z.enum(POCKET_TYPE).optional().nullable(),
-  keyword: z.string().optional().nullable()
-})
+  keyword: z.string().optional().nullable(),
+});
 
 export const createPocketSchema = z.object({
   name: z.string().min(1),
   type: z.enum(POCKET_TYPE),
   icon: z.string(),
   color: z.string(),
-})
+});
 
 export type PocketSelect = z.infer<typeof pocketSelectSchema>;
 export type PocketInsert = z.infer<typeof pocketInsertSchema>;
