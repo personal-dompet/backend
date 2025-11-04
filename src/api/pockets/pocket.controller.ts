@@ -25,25 +25,43 @@ controller.post('/', zValidator('json', createPocketSchema), async (c) => {
   return c.json(pocket);
 });
 
-controller.post('/spendings', zValidator('json', createSpendingPocketSchema), async (c) => {
-  const user = c.get('user');
-  const payload = c.req.valid('json');
-  const spendingPocket = await CreateSpendingPocketCase.execute(user, payload);
-  return c.json(spendingPocket);
-});
+controller.post(
+  '/spendings',
+  zValidator('json', createSpendingPocketSchema),
+  async (c) => {
+    const user = c.get('user');
+    const payload = c.req.valid('json');
+    const spendingPocket = await CreateSpendingPocketCase.execute(
+      user,
+      payload
+    );
+    return c.json(spendingPocket);
+  }
+);
 
-controller.post('/recurrings', zValidator('json', createRecurringPocketSchema), async (c) => {
-  const user = c.get('user');
-  const payload = c.req.valid('json');
-  const recurringPocket = await CreateRecurringPocketCase.execute(user, payload);
-  return c.json(recurringPocket);
-});
+controller.post(
+  '/recurrings',
+  zValidator('json', createRecurringPocketSchema),
+  async (c) => {
+    const user = c.get('user');
+    const payload = c.req.valid('json');
+    const recurringPocket = await CreateRecurringPocketCase.execute(
+      user,
+      payload
+    );
+    return c.json(recurringPocket);
+  }
+);
 
-controller.post('/savings', zValidator('json', createSavingPocketSchema), async (c) => {
-  const user = c.get('user');
-  const payload = c.req.valid('json');
-  const savingPocket = await CreateSavingPocketCase.execute(user, payload);
-  return c.json(savingPocket);
-});
+controller.post(
+  '/savings',
+  zValidator('json', createSavingPocketSchema),
+  async (c) => {
+    const user = c.get('user');
+    const payload = c.req.valid('json');
+    const savingPocket = await CreateSavingPocketCase.execute(user, payload);
+    return c.json(savingPocket);
+  }
+);
 
 export const pocketController = controller;
