@@ -37,9 +37,6 @@ export class TransactionDetail extends Transaction {
     super(data);
     this.pocket = new Pocket(data.pocket);
     this.account = new Account(data.account);
-    this.wallet = new Wallet({
-      ...data.wallet,
-      ...data.pocket,
-    });
+    this.wallet = new Wallet(data.wallet);
   }
 }

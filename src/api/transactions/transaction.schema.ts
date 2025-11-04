@@ -5,7 +5,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
 import { PocketSelect } from "../pockets/pocket.schema";
 import { AccountSelect } from "../accounts/account.schema";
-import { WalletSelect } from "../wallets/wallet.schema";
+import { WalletPocket } from "../wallets/wallet.schema";
 
 export const transactionInsertSchema = createInsertSchema(transactions).pick({
   accountId: true,
@@ -78,5 +78,5 @@ export type TransactionFilter = z.infer<typeof transactionFilterSchema>;
 export type TransactionDetailSelect = TransactionSelect & {
   pocket: PocketSelect;
   account: AccountSelect;
-  wallet: WalletSelect;
+  wallet: WalletPocket;
 };
