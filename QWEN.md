@@ -94,3 +94,12 @@ All API endpoints require Firebase authentication via Bearer token in the Author
 - All routes under `/api/*` require authentication
 - Each API module follows the same pattern with controller files that define routes
 - Schemas in the db/schemas directory define the database structure using Drizzle ORM
+
+## Commit Instructions
+
+When commiting, this project use these instrutions:
+
+- Commit all hanges that has been made
+- Follow [COMMIT_GUIDE.md](COMMIT_GUIDE.md) to ensure consistency and clarity in our commit history
+- Split into multiple commits if needed to follow the guide
+- IMPORTANT: Do not discard any changes. You can stage, unstage, commit, revert commit, but not with discarding any changes.
