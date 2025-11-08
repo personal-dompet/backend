@@ -1,24 +1,24 @@
-import { transactions } from "db/schemas/transactions";
+import { transactions } from 'db/schemas/transactions';
 import {
   TransactionInsert,
   TransactionFilter,
   TransactionDetailSelect,
-} from "./transaction.schema";
-import { and, asc, desc, ilike, gte, lte, eq, isNull } from "drizzle-orm";
-import { User } from "@/core/dto/user";
-import { WalletPocket } from "../wallets/wallet.schema";
-import { walletPockets } from "db/schemas/wallet-pockets";
-import { walletColumns } from "../wallets/wallet.column";
-import { pockets } from "db/schemas/pockets";
-import { pocketColumns } from "../pockets/pocket.column";
-import { accountColumns } from "../accounts/account.column";
-import { accounts } from "db/schemas/accounts";
-import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { Drizzle } from "db";
-import { transactionColumns } from "./transaction.column";
-import { TRANSACTION_TYPE } from "@/core/constants/transaction-type";
-import { alias } from "drizzle-orm/pg-core";
-import { WalletService } from "../wallets/wallet.service";
+} from './transaction.schema';
+import { and, asc, desc, ilike, gte, lte, eq, isNull } from 'drizzle-orm';
+import { User } from '@/core/dto/user';
+import { WalletPocket } from '../wallets/wallet.schema';
+import { walletPockets } from 'db/schemas/wallet-pockets';
+import { walletColumns } from '../wallets/wallet.column';
+import { pockets } from 'db/schemas/pockets';
+import { pocketColumns } from '../pockets/pocket.column';
+import { accountColumns } from '../accounts/account.column';
+import { accounts } from 'db/schemas/accounts';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { Drizzle } from 'db';
+import { transactionColumns } from './transaction.column';
+import { TRANSACTION_TYPE } from '@/core/constants/transaction-type';
+import { alias } from 'drizzle-orm/pg-core';
+import { WalletService } from '../wallets/wallet.service';
 
 export class TransactionService {
   private drizzle: Drizzle;
@@ -77,6 +77,7 @@ export class TransactionService {
         pocket.balance = pocket.balance + relativeAmount;
         account.balance = account.balance + relativeAmount;
         wallet.totalBalance = wallet.totalBalance + relativeAmount;
+        wallet.balance = pocket.balance;
 
         await Promise.all([
           tx
@@ -108,6 +109,8 @@ export class TransactionService {
       }
     );
 
+    console.log('result', result);
+
     return result;
   }
 
@@ -130,7 +133,7 @@ export class TransactionService {
 
       if (!wallet) {
         tx.rollback();
-        throw new Error("Pocket not found");
+        throw new Error('Pocket not found');
       }
 
       wallet.balance += transaction.amount;
@@ -158,7 +161,7 @@ export class TransactionService {
 
       if (!account) {
         tx.rollback();
-        throw new Error("Account not found");
+        throw new Error('Account not found');
       }
 
       account.balance += transaction.amount;
@@ -193,8 +196,8 @@ export class TransactionService {
       search,
       endCreatedAt,
       startCreatedAt,
-      sortBy = "date",
-      sortOrder = "desc",
+      sortBy = 'date',
+      sortOrder = 'desc',
     } = filter;
 
     const offset = (page - 1) * limit;
@@ -221,9 +224,9 @@ export class TransactionService {
     ].filter((condition) => condition !== undefined);
 
     const sortColumn =
-      sortBy === "date"
+      sortBy === 'date'
         ? transactions.date
-        : sortBy === "amount"
+        : sortBy === 'amount'
         ? transactions.amount
         : transactions.createdAt;
 
@@ -240,7 +243,7 @@ export class TransactionService {
         .innerJoin(accounts, eq(transactions.accountId, accounts.id))
         .innerJoin(pockets, eq(transactions.pocketId, pockets.id))
         .where(and(...conditions))
-        .orderBy(sortOrder === "asc" ? asc(sortColumn) : desc(sortColumn))
+        .orderBy(sortOrder === 'asc' ? asc(sortColumn) : desc(sortColumn))
         .limit(limit)
         .offset(offset),
       walletService.get(user),
