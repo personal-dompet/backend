@@ -3,6 +3,6 @@ import { accounts } from './accounts';
 
 export const accountDetails = pgTable('account_details', {
   accountId: integer('account_id').references(() => accounts.id).primaryKey(),
-  provider: varchar('provider', { length: 16 }).notNull(),
+  provider: varchar('provider').notNull(),
   accountNumber: varchar('account_number', { length: 32 }),
 })

@@ -17,7 +17,6 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { Drizzle } from 'db';
 import { transactionColumns } from './transaction.column';
 import { TRANSACTION_TYPE } from '@/core/constants/transaction-type';
-import { alias } from 'drizzle-orm/pg-core';
 import { WalletService } from '../wallets/wallet.service';
 
 export class TransactionService {
@@ -225,8 +224,8 @@ export class TransactionService {
       sortBy === 'date'
         ? transactions.date
         : sortBy === 'amount'
-        ? transactions.amount
-        : transactions.createdAt;
+          ? transactions.amount
+          : transactions.createdAt;
 
     const walletService = new WalletService(this.drizzle);
 
