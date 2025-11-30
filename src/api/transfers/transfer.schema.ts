@@ -3,34 +3,74 @@ import { transfers } from 'db/schemas/transfers';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import z from 'zod';
 import { PocketSelect } from '../pockets/pocket.schema';
+import { accountTransfers } from 'db/schemas/account-transfers';
+import { AccountSelect } from '../accounts/account.schema';
 
 const transferInsertSchema = createInsertSchema(transfers);
 const pocketTransferInsertSchema = createInsertSchema(pocketTransfers);
+const accountTransferInsertSchema = createInsertSchema(accountTransfers);
 const transferSelectSchema = createSelectSchema(transfers);
 const pocketTransferSelectSchema = createSelectSchema(pocketTransfers);
+const accountTransferSelectSchema = createSelectSchema(accountTransfers);
 
-export const pocketTransferRequestSchema = transferInsertSchema.extend(pocketTransferInsertSchema.shape).omit({
-  transferId: true,
-  userId: true,
-});
+export const pocketTransferRequestSchema = transferInsertSchema
+  .extend(pocketTransferInsertSchema.shape)
+  .omit({
+    transferId: true,
+    userId: true,
+  });
 
-export const pocketTransferFilterSchema = z.object({
+export const accountTransferRequestSchema = transferInsertSchema
+  .extend(accountTransferInsertSchema.shape)
+  .omit({
+    transferId: true,
+    userId: true,
+  });
+
+export const transferFilterSchema = z.object({
   // Pagination - page is mandatory as requested
   page: z.string().transform((value) => parseInt(value)),
-  limit: z.string().transform((value) => parseInt(value)).default(20),
+  limit: z
+    .string()
+    .transform((value) => parseInt(value))
+    .default(20),
 
-  sourcePocketId: z.string().transform((value) => parseInt(value)).optional(),
-  destinationPocketId: z.string().transform((value) => parseInt(value)).optional(),
+  sourceId: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
+  destinationId: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
 
   // Amount range filter
-  minAmount: z.string().transform((value) => parseInt(value)).optional(), 
-  maxAmount: z.string().transform((value) => parseInt(value)).optional(),
+  minAmount: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
+  maxAmount: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
 
   // Date range filter (Unix timestamps)
-  startDate: z.string().transform((value) => parseInt(value)).optional(), 
-  endDate: z.string().transform((value) => parseInt(value)).optional(),
-  startCreatedAt: z.string().transform((value) => parseInt(value)).optional(),
-  endCreatedAt: z.string().transform((value) => parseInt(value)).optional(),
+  startDate: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
+  endDate: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
+  startCreatedAt: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
+  endCreatedAt: z
+    .string()
+    .transform((value) => parseInt(value))
+    .optional(),
 
   // Search in description
   search: z.string().optional(),
@@ -41,11 +81,22 @@ export const pocketTransferFilterSchema = z.object({
 });
 
 export type PocketTransferRequest = z.infer<typeof pocketTransferRequestSchema>;
-export type PocketTransferFilter = z.infer<typeof pocketTransferFilterSchema>;
+export type AccountTransferRequest = z.infer<
+  typeof accountTransferRequestSchema
+>;
+export type TransferFilter = z.infer<typeof transferFilterSchema>;
 export type TransferSelect = z.infer<typeof transferSelectSchema>;
 export type PocketTransferSelect = z.infer<typeof pocketTransferSelectSchema>;
+export type AccountTransferSelect = z.infer<typeof accountTransferSelectSchema>;
 
-export type PocketTransferDetailSelect = TransferSelect & PocketTransferSelect & {
-  sourcePocket: PocketSelect;
-  destinationPocket: PocketSelect;
-}
+export type PocketTransferDetailSelect = TransferSelect &
+  PocketTransferSelect & {
+    source: PocketSelect;
+    destination: PocketSelect;
+  };
+
+export type AccountTransferDetailSelect = TransferSelect &
+  AccountTransferSelect & {
+    source: AccountSelect;
+    destination: AccountSelect;
+  };
