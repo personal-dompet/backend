@@ -15,6 +15,7 @@ import { alias } from 'drizzle-orm/pg-core';
 import { User } from '@/core/dto/user';
 import { accounts } from 'db/schemas/accounts';
 import { accountTransfers } from 'db/schemas/account-transfers';
+import { pinoLogger } from '@/core/helpers/logger';
 
 export class TransferService {
   private drizzle: Drizzle;
@@ -152,8 +153,8 @@ export class TransferService {
       sortBy === 'date'
         ? transfers.createdAt
         : sortBy === 'amount'
-        ? transfers.amount
-        : transfers.createdAt;
+          ? transfers.amount
+          : transfers.createdAt;
 
     const sourcePocket = alias(pockets, 'sourcePocket');
     const destinationPocket = alias(pockets, 'destinationPocket');
@@ -189,7 +190,7 @@ export class TransferService {
     request: AccountTransferRequest,
     user: User
   ): Promise<AccountTransferDetailSelect> {
-    const { amount, description, sourceId: sourceId, destinationId } = request;
+    const { amount, description, sourceId, destinationId } = request;
     const userId = user.uid;
 
     const transfer: AccountTransferDetailSelect = await this.db.transaction(
@@ -199,9 +200,11 @@ export class TransferService {
           .from(accounts)
           .where(and(eq(accounts.id, sourceId), isNull(accounts.deletedAt)))
           .limit(1);
+
         if (!sourceAccount) {
           throw new Error('Source account not found');
         }
+
         const [destinationAccount] = await tx
           .select()
           .from(accounts)
@@ -209,6 +212,7 @@ export class TransferService {
             and(eq(accounts.id, destinationId), isNull(accounts.deletedAt))
           )
           .limit(1);
+
         if (!destinationAccount) {
           throw new Error('Destination account not found');
         }
@@ -312,8 +316,8 @@ export class TransferService {
       sortBy === 'date'
         ? transfers.createdAt
         : sortBy === 'amount'
-        ? transfers.amount
-        : transfers.createdAt;
+          ? transfers.amount
+          : transfers.createdAt;
 
     const sourceAccount = alias(accounts, 'sourceAccount');
     const destinationAccount = alias(accounts, 'destinationAccount');
