@@ -6,6 +6,7 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { Drizzle } from 'db';
 import { PocketSelect } from '../pocket.schema';
 import { pockets } from 'db/schemas/pockets';
+import { eq } from 'drizzle-orm';
 
 export class SpendingPocketService {
   private drizzle: Drizzle;
@@ -43,6 +44,16 @@ export class SpendingPocketService {
         ...spendingPocket,
       };
     });
+    return spendingPocket;
+  }
+
+  async detail(pocketId: number): Promise<SpendingPocketSelect> {
+    const [spendingPocket] = await this.db
+      .select()
+      .from(spendingPockets)
+      .where(eq(spendingPockets.pocketId, pocketId),)
+      .limit(1);
+
     return spendingPocket;
   }
 }

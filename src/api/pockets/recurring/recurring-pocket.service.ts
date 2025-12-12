@@ -6,6 +6,7 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { Drizzle } from 'db';
 import { PocketSelect } from '../pocket.schema';
 import { pockets } from 'db/schemas/pockets';
+import { and, eq } from 'drizzle-orm';
 
 export class RecurringPocketService {
   private drizzle: Drizzle;
@@ -43,6 +44,16 @@ export class RecurringPocketService {
         ...recurringPocket,
       };
     });
+    return recurringPocket;
+  }
+
+  async detail(pocketId: number): Promise<RecurringPocketSelect> {
+    const [recurringPocket] = await this.db
+      .select()
+      .from(recurringPockets)
+      .where(eq(recurringPockets.pocketId, pocketId),)
+      .limit(1);
+
     return recurringPocket;
   }
 }

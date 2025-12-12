@@ -2,12 +2,13 @@ import { User } from "@/core/dto/user";
 import {
   AllPocket,
   CreatePocketRequest,
+  DetailPocketParam,
   PocketFilter,
   PocketInsert,
   PocketSelect,
 } from "./pocket.schema";
 import { pockets } from "db/schemas/pockets";
-import { and, desc, eq, ilike, not } from "drizzle-orm";
+import { and, desc, eq, ilike, isNull, not } from "drizzle-orm";
 import { savingPockets } from "db/schemas/saving-pockets";
 import { recurringPockets } from "db/schemas/recurring-pockets";
 import { spendingPockets } from "db/schemas/spending-pockets";
@@ -103,5 +104,18 @@ export class PocketService {
       .orderBy(desc(pockets.createdAt));
 
     return allPockets;
+  }
+
+  async detail(param: DetailPocketParam): Promise<PocketSelect> {
+    const [pocket] = await this.db
+      .select()
+      .from(pockets)
+      .where(and(
+        eq(pockets.id, parseInt(param.id)),
+        isNull(pockets.deletedAt),
+      ))
+      .limit(1)
+
+    return pocket;
   }
 }

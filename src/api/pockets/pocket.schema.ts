@@ -23,6 +23,10 @@ export const createPocketSchema = z.object({
   color: z.string(),
 });
 
+export const detailPocketParamSchema = z.object({
+  id: z.string(),
+})
+
 export type PocketSelect = z.infer<typeof pocketSelectSchema>;
 export type PocketInsert = z.infer<typeof pocketInsertSchema>;
 
@@ -34,3 +38,9 @@ export type AllPocket = PocketSelect & {
   recurring?: RecurringPocketSelect | null;
   spending?: SpendingPocketSelect | null;
 };
+
+export type DetailPocketParam = z.infer<typeof detailPocketParamSchema>;
+
+export type SavingPocketDetailSelect = PocketSelect & SavingPocketSelect;
+export type SpendingPocketDetailSelect = PocketSelect & SpendingPocketSelect;
+export type RecurringPocketDetailSelect = PocketSelect & RecurringPocketSelect;
