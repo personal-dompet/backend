@@ -1,5 +1,5 @@
 import { honoApp } from '@/core/lib/hono';
-import { CreatePocketCase, DetailPocketCase, ListPocketCase } from './pocket.case';
+import { CompletListPocketCase, CreatePocketCase, DetailPocketCase, ListPocketCase } from './pocket.case';
 import { zValidator } from '@hono/zod-validator';
 import { createPocketSchema, detailPocketParamSchema, pocketFilterSchema } from './pocket.schema';
 import { createSpendingPocketSchema } from './spending/spending-pocket.schema';
@@ -15,6 +15,12 @@ controller.get('/', zValidator('query', pocketFilterSchema), async (c) => {
   const user = c.get('user');
   const query = c.req.valid('query');
   const pockets = await ListPocketCase.execute(user, query);
+  return c.json(pockets);
+});
+
+controller.get('/completes', async (c) => {
+  const user = c.get('user');
+  const pockets = await CompletListPocketCase.execute(user);
   return c.json(pockets);
 });
 

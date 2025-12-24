@@ -8,7 +8,7 @@ import {
   PocketSelect,
 } from "./pocket.schema";
 import { pockets } from "db/schemas/pockets";
-import { and, desc, eq, ilike, isNull, not } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, ilike, isNotNull, isNull, not } from "drizzle-orm";
 import { savingPockets } from "db/schemas/saving-pockets";
 import { recurringPockets } from "db/schemas/recurring-pockets";
 import { spendingPockets } from "db/schemas/spending-pockets";
@@ -16,6 +16,11 @@ import { POCKET_TYPE } from "@/core/constants/pocket-type";
 import { Wallet } from "../wallets/wallet.dto";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Drizzle } from "db";
+import { pocketColumns } from './pocket.column';
+import { pinoLogger } from '@/core/helpers/logger';
+import { savingPocketColumns } from './saving/saving-pocket.column';
+import { spendingPocketColumns } from './spending/spending-pocket.column';
+import { recurringPocketColumns } from './recurring/recurring-pocket.column';
 
 export class PocketService {
   private drizzle: Drizzle;
@@ -84,6 +89,27 @@ export class PocketService {
     return pocket;
   }
 
+  async completeList(user: User): Promise<AllPocket[]> {
+    const list = await this.db
+      .select({
+        ...pocketColumns,
+        saving: savingPocketColumns,
+        spending: spendingPocketColumns,
+        recurring: recurringPocketColumns,
+      })
+      .from(pockets)
+      .where(and(
+        isNotNull(pockets.deletedAt),
+        eq(pockets.userId, user.uid)
+      ))
+      .leftJoin(savingPockets, and(eq(savingPockets.pocketId, pockets.id), eq(pockets.type, POCKET_TYPE.SAVING)))
+      .leftJoin(spendingPockets, and(eq(spendingPockets.pocketId, pockets.id), eq(pockets.type, POCKET_TYPE.SPENDING)))
+      .leftJoin(recurringPockets, and(eq(recurringPockets.pocketId, pockets.id), eq(pockets.type, POCKET_TYPE.RECURRING)))
+      .orderBy(desc(pockets.createdAt));
+
+    return list;
+  }
+
   async list(user: User, query?: PocketFilter): Promise<AllPocket[]> {
     const queries = [eq(pockets.userId, user.uid)];
 
@@ -102,6 +128,19 @@ export class PocketService {
       .from(pockets)
       .where(and(...queries))
       .orderBy(desc(pockets.createdAt));
+
+    const list = await this.db
+      .select({
+        ...pocketColumns,
+        saving: {
+          ...getTableColumns(savingPockets)
+        }
+      })
+      .from(pockets)
+      .leftJoin(savingPockets, and(eq(savingPockets.pocketId, pockets.id), eq(pockets.type, POCKET_TYPE.SAVING)))
+      .orderBy(desc(pockets.createdAt));
+
+    pinoLogger.debug(`Here is the new pocket: ${JSON.stringify(list)}`)
 
     return allPockets;
   }

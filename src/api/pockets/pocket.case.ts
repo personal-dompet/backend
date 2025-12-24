@@ -4,7 +4,7 @@ import { CreatePocketRequest, DetailPocketParam, PocketFilter } from './pocket.s
 import { WalletService } from '../wallets/wallet.service';
 import { Drizzle } from 'db';
 import { POCKET_TYPE } from '@/core/constants/pocket-type';
-import { Pocket } from './pocket.dto';
+import { CompletePocket, Pocket } from './pocket.dto';
 import { RecurringPocketService } from './recurring/recurring-pocket.service';
 import { RecurringPocket } from './recurring/recurring-pocket.dto';
 import { SavingPocket } from './saving/saving-pocket.dto';
@@ -18,6 +18,14 @@ export abstract class ListPocketCase {
     const pockets = await pocketService.list(user, query);
     return pockets.map((pocket) => new Pocket(pocket));
   };
+}
+
+export abstract class CompletListPocketCase {
+  static async execute(user: User): Promise<CompletePocket[]> {
+    const pocketService = new PocketService(Drizzle.getInstance());
+    const pockets = await pocketService.completeList(user);
+    return CompletePocket.fromList(pockets);
+  }
 }
 
 export abstract class CreatePocketCase {
