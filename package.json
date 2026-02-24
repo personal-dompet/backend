@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.7.6",
+    "drizzle-kit": "^1.0.0-beta.9-e89174b",
+    "drizzle-orm": "^1.0.0-beta.9-e89174b",
+    "drizzle-zod": "^0.8.3",
+    "firebase-admin": "^13.6.1",
+    "hono": "^4.12.1",
+    "pg": "^8.18.0",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "postgres": "^3.4.8",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

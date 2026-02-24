@@ -1,0 +1,1 @@
+export const WALLET_COLOR = '#4db6ac';
